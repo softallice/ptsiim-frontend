@@ -1,1 +1,10 @@
 // app global css in SCSS form
+.q-page--contained,
+.container {
+  max-width: 900px;
+  margin: auto;
+}
+
+.container {
+  padding: 1rem;
+}

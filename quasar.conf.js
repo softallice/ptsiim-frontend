@@ -38,7 +38,7 @@ module.exports = function (/* ctx */) {
       // 'line-awesome',
       // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
 
-      'roboto-font', // optional, you are not bound to it
+      'roboto-font-latin-ext', // optional, you are not bound to it
       'material-icons' // optional, you are not bound to it
     ],
 
@@ -76,7 +76,7 @@ module.exports = function (/* ctx */) {
     // Full list of options: https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
     devServer: {
       https: false,
-      port: 8080,
+      port: 8000,
       open: true // opens browser window automatically
     },
 

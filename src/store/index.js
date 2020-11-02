@@ -19,6 +19,26 @@ export default function (/* { ssrContext } */) {
     modules: {
       // example
     },
+    state: () => ({
+      pageTitle: '',
+      headerIcon: 'menu'
+    }),
+    getters: {
+      pageTitle (state) {
+        return state.pageTitle
+      },
+      headerIcon (state) {
+        return state.headerIcon
+      }
+    },
+    mutations: {
+      setPageTitle (state, title) {
+        state.pageTitle = title
+      },
+      setHeaderIcon (state, headerIcon) {
+        state.headerIcon = headerIcon
+      }
+    },
 
     // enable strict mode (adds overhead!)
     // for dev mode only

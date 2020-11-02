@@ -3,19 +3,27 @@
     <q-header elevated>
       <q-toolbar>
         <q-btn
+          v-if="headerIcon === 'menu'"
           flat
           dense
           round
           icon="menu"
           aria-label="Menu"
-          @click="leftDrawerOpen = !leftDrawerOpen"
+          @click="toggleLeftDrawer"
+        />
+        <q-btn
+          v-if="headerIcon === 'back'"
+          flat
+          dense
+          round
+          icon="arrow_back"
+          aria-label="Wstecz"
+          @click="$router.go(-1)"
         />
 
         <q-toolbar-title>
-          Quasar App
+          {{ pageTitle }}
         </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
       </q-toolbar>
     </q-header>
 
@@ -26,17 +34,42 @@
       content-class="bg-grey-1"
     >
       <q-list>
-        <q-item-label
-          header
-          class="text-grey-8"
-        >
-          Essential Links
+        <q-item-label header class="text-grey-8">
+          Konto
         </q-item-label>
-        <EssentialLink
+        <q-item clickable to="/login">
+          <q-item-section avatar>
+            <q-icon name="login"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Zaloguj się</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable to="/register">
+          <q-item-section avatar>
+            <q-icon name="person_add"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Zarejestruj się</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-separator/>
+        <q-item-label header class="text-grey-8">
+          Nawigacja
+        </q-item-label>
+        <q-item clickable exact to="/">
+          <q-item-section avatar>
+            <q-icon name="home"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Strona główna</q-item-label>
+          </q-item-section>
+        </q-item>
+        <!-- <EssentialLink
           v-for="link in essentialLinks"
           :key="link.title"
           v-bind="link"
-        />
+        /> -->
       </q-list>
     </q-drawer>
 
@@ -47,9 +80,14 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import EssentialLink from 'components/EssentialLink.vue'
 
 const linksData = [
+  {
+    title: 'Zaloguj się',
+    icon: 'login'
+  },
   {
     title: 'Docs',
     caption: 'quasar.dev',
@@ -101,6 +139,17 @@ export default {
     return {
       leftDrawerOpen: false,
       essentialLinks: linksData
+    }
+  },
+  computed: {
+    ...mapGetters({
+      pageTitle: 'pageTitle',
+      headerIcon: 'headerIcon'
+    })
+  },
+  methods: {
+    toggleLeftDrawer () {
+      this.leftDrawerOpen = !this.leftDrawerOpen
     }
   }
 }
