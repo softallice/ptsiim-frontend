@@ -42,6 +42,8 @@
   </q-page>
 </template>
 <script>
+import axios from 'axios'
+
 export default {
   name: 'RegisterPage',
   data () {
@@ -61,7 +63,23 @@ export default {
     }
   },
   methods: {
-    onSubmit () {}
+    onSubmit () {
+      console.log(this.form)
+      axios({
+        method: 'post',
+        url: '/api/user/register', // make sure your endpoint is correct
+        data: this.form
+      })
+        .then(response => {
+        // handle success
+          console.log(response.data)
+        // do some stuff here: redirect or something you want
+        })
+        .catch(error => {
+        // handle error
+          console.log(error.data)
+        })
+    }
   },
   mounted () {
     this.$store.commit('setPageTitle', 'Rejestracja')
