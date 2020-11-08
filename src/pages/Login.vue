@@ -14,6 +14,7 @@
             />
           </template>
         </q-input>
+         <div v-if="error===true" style="color:red;">{{ error_message}}</div>
         <q-btn color="primary" label="Zaloguj się" type="submit"/>
       </q-form>
     </div>
@@ -21,6 +22,8 @@
   </q-page>
 </template>
 <script>
+import axios from 'axios'
+
 export default {
   name: 'LoginPage',
   data () {
@@ -29,11 +32,31 @@ export default {
         email: '',
         password: ''
       },
-      showPassword: false
+      showPassword: false,
+      error: false,
+      error_message: ''
     }
   },
   methods: {
-    onSubmit () {}
+    onSubmit () {
+      axios({
+        method: 'post',
+        url: '/api/users/login', // make sure your endpoint is correct
+        data: this.form
+      })
+        .then(response => {
+        // handle success
+          console.log(response)
+          this.$router.push('/')
+        // do some stuff here: redirect or something you want
+        })
+        .catch(error => {
+        // handle error
+          console.log(error.response)
+          this.error = true
+          this.error_message = error.response.data.msg
+        })
+    }
   },
   mounted () {
     this.$store.commit('setPageTitle', 'Logowanie')

@@ -34,6 +34,7 @@
             <q-radio v-model="form.sex" :val="true" label="Kobieta"/>
           </template>
         </q-field>
+        <div v-if="error===true" style="color:red;">{{ error_message}}</div>
         <div class="col-12">
           <q-btn color="primary" label="Zarejestruj się" type="submit"/>
         </div>
@@ -59,25 +60,28 @@ export default {
         sex: false,
         pesel: ''
       },
-      showPassword: false
+      showPassword: false,
+      error: false,
+      error_message: ''
     }
   },
   methods: {
     onSubmit () {
-      console.log(this.form)
       axios({
         method: 'post',
-        url: '/api/user/register', // make sure your endpoint is correct
+        url: '/api/users/register', // make sure your endpoint is correct
         data: this.form
       })
         .then(response => {
         // handle success
-          console.log(response.data)
+          console.log(response)
         // do some stuff here: redirect or something you want
         })
         .catch(error => {
         // handle error
-          console.log(error.data)
+          console.log(error.response)
+          this.error = true
+          this.error_message = error.response.data.msg
         })
     }
   },
