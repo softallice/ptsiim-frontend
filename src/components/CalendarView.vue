@@ -61,7 +61,6 @@ export default {
       this.$refs.calendar.prev()
     },
     getEvents (dt) {
-      console.log(dt)
       const currentDate = QCalendar.parsed(dt)
       const events = []
       for (let i = 0; i < this.events.length; ++i) {

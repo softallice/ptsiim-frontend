@@ -7,7 +7,8 @@ const routes = [
       { path: '', component: () => import('pages/Index.vue') },
       { path: 'login', component: () => import('pages/Login.vue') },
       { path: 'register', component: () => import('pages/Register.vue') },
-      { path: 'reserve', component: () => import('pages/Reserve.vue') }
+      { path: 'reserve', component: () => import('pages/Reserve.vue') },
+      { path: 'visit/:id', component: () => import('pages/Visit.vue') }
     ]
   },
 
