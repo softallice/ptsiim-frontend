@@ -21,7 +21,8 @@ export default function (/* { ssrContext } */) {
     },
     state: () => ({
       pageTitle: '',
-      headerIcon: 'menu'
+      headerIcon: 'menu',
+      leftDrawerOpen: false
     }),
     getters: {
       pageTitle (state) {
@@ -29,6 +30,9 @@ export default function (/* { ssrContext } */) {
       },
       headerIcon (state) {
         return state.headerIcon
+      },
+      leftDrawerOpen (state) {
+        return state.leftDrawerOpen
       }
     },
     mutations: {
@@ -37,6 +41,21 @@ export default function (/* { ssrContext } */) {
       },
       setHeaderIcon (state, headerIcon) {
         state.headerIcon = headerIcon
+      },
+      openLeftDrawer (state) {
+        state.leftDrawerOpen = true
+      },
+
+      hideLeftDrawer (state) {
+        state.leftDrawerOpen = false
+      },
+
+      toggleLeftDrawer (state) {
+        state.leftDrawerOpen = !state.leftDrawerOpen
+      },
+
+      setLeftDrawer (state, payload) {
+        state.leftDrawerOpen = payload
       }
     },
 
