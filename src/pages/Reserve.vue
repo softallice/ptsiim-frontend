@@ -41,7 +41,7 @@
           </template>
         </q-select>
         <q-stepper-navigation>
-          <q-btn color="primary" label="Dalej" @click="step = 3" :disable="event.doctor === null"/>
+          <q-btn color="primary" label="Dalej" @click="step = 3" :disable="event.type === null"/>
           <q-btn color="primary" outline label="Wstecz" @click="step = 1"/>
         </q-stepper-navigation>
       </q-step>
@@ -53,7 +53,7 @@
       >
         <calendar-view @click:time2="timeSelected" :events="[...events, event]"/>
         <q-stepper-navigation>
-          <q-btn color="primary" label="Dalej" @click="step = 4" :disable="event.doctor === null"/>
+          <q-btn color="primary" label="Dalej" @click="step = 4" :disable="event.date === null"/>
           <q-btn color="primary" outline label="Wstecz" @click="step = 2"/>
         </q-stepper-navigation>
       </q-step>
@@ -64,9 +64,9 @@
         caption="Opcjonalne"
         :done="event.description != null"
       >
-        <q-input type="textarea" outlined label="Opis"/>
+        <q-input v-model="event.description" type="textarea" outlined label="Opis"/>
         <q-stepper-navigation>
-          <q-btn color="primary" label="Dalej" @click="step = 5" :disable="event.doctor === null"/>
+          <q-btn color="primary" label="Dalej" @click="step = 5"/>
           <q-btn color="primary" outline label="Wstecz" @click="step = 3"/>
         </q-stepper-navigation>
       </q-step>
@@ -77,23 +77,46 @@
         caption="Opcjonalne"
         :done="event.media.length != 0"
       >
+        <q-btn color="primary" icon="camera" label="Zrób zdjęcie" @click="showMediaCapture = true"/>
+        <template v-if="event.media.length > 0">
+          <h5>Zdjęcia</h5>
+          <div class="row q-gutter-sm">
+            <q-intersection
+              v-for="(pic, index) in event.media"
+              :key="index"
+              transition="scale"
+            >
+              <q-img :src="pic.dataURL" class="picture-item">
+                <q-icon class="absolute cursor-pointer" size="32px" name="close" color="white" style="top: 8px; right: 8px" @click="deletePicture(pic)"/>
+              </q-img>
+            </q-intersection>
+          </div>
+        </template>
         <q-stepper-navigation>
-          <q-btn color="primary" label="Dalej" :disable="event.doctor === null"/>
+          <q-btn color="primary" label="Zakończ" :disable="!isDone"/>
           <q-btn color="primary" outline label="Wstecz" @click="step = 4"/>
         </q-stepper-navigation>
       </q-step>
     </q-stepper>
+    <media-capture
+      v-if="showMediaCapture"
+      type="picture"
+      @close="mediaCaptureClosed"
+      @snap="newMedia"
+    />
   </q-page>
 </template>
 
 <script>
 import CalendarView from 'components/CalendarView'
 import QCalendar from '@quasar/quasar-ui-qcalendar'
+import MediaCapture from 'components/MediaCapture'
 
 export default {
   // name: 'PageName',
   components: {
-    CalendarView
+    CalendarView,
+    MediaCapture
   },
   data () {
     return {
@@ -161,7 +184,13 @@ export default {
             }
           ]
         }
-      ]
+      ],
+      showMediaCapture: false
+    }
+  },
+  computed: {
+    isDone () {
+      return this.event.doctor != null && this.event.type != null && this.event.date != null && this.event.time != null
     }
   },
   methods: {
@@ -175,17 +204,41 @@ export default {
       const date = event.scope.timestamp.date
       const time = event.scope.timestamp.time.split(':')[0] + ':00'
       const startTime = QCalendar.parsed(`${date} ${time}`)
+      const jsDt = QCalendar.makeDateTime(startTime)
+      const now = new Date(Date.now() + 30 * 60000)
+      if (now >= jsDt) {
+        this.$q.notify({
+          type: 'negative',
+          message: 'Musisz zająć termin co najmniej pół godziny przed'
+        })
+        return
+      }
       const endTime = QCalendar.addToDate(startTime, { minute: this.event.duration })
       const conflictingEvent = this.events.find(e => {
         const eStart = QCalendar.parsed(`${e.date} ${e.time}`)
         const eStop = QCalendar.addToDate(eStart, { minute: e.duration })
-        console.log(startTime, endTime, eStart, eStop)
         return QCalendar.isBetweenDates(startTime, eStart, eStop, true)
       })
       if (!conflictingEvent) {
         this.event.date = date
         this.event.time = time
+      } else {
+        this.$q.notify({
+          type: 'negative',
+          message: 'Termin jest zajęty'
+        })
       }
+    },
+    mediaCaptureClosed () {
+      this.showMediaCapture = false
+    },
+    newMedia (data) {
+      this.event.media.push(data)
+    },
+    deletePicture (pic) {
+      this.event.media = this.event.media.filter((p) => {
+        return p !== pic
+      })
     }
   },
   filters: {
@@ -196,6 +249,19 @@ export default {
         return `${value} zł`
       }
     }
+  },
+  watch: {
+    'event.doctor' () {
+      this.event.type = null
+      this.event.date = null
+      this.event.time = null
+    }
   }
 }
 </script>
+<style lang="scss" scoped>
+.picture-item {
+  width: 128px;
+  height: 128px;
+}
+</style>
