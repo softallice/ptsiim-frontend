@@ -190,7 +190,11 @@ export default {
   },
   computed: {
     isDone () {
-      return this.event.doctor != null && this.event.type != null && this.event.date != null && this.event.time != null
+      if (this.event.doctor != null && this.event.type != null && this.event.date != null && this.event.time != null) {
+        return true
+      } else {
+        return false
+      }
     }
   },
   methods: {

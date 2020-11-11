@@ -212,7 +212,11 @@ export default {
       userType: 'user/userType'
     }),
     saveButtonLabel () {
-      return this.modified ? 'Zapisz' : 'Wszystkie zmiany zapisane'
+      if (this.modified) {
+        return 'Zapisz'
+      } else {
+        return 'Wszystkie zmiany zapisane'
+      }
     }
   },
   watch: {
