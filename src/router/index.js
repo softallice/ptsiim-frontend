@@ -31,7 +31,7 @@ export default function (/* { store, ssrContext } */) {
     if (to.matched.some(record => record.meta.requiresAuth)) {
       if (localStorage.getItem('jwt') == null) {
         next({
-          path: '/'
+          path: '/login'
         })
       } else {
         next()

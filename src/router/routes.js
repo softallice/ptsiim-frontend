@@ -10,7 +10,8 @@ const routes = [
       { path: 'reserve', component: () => import('pages/Reserve.vue'), meta: { requiresAuth: true } },
       { path: 'visit/:id', component: () => import('pages/Visit.vue'), meta: { requiresAuth: true } },
       { path: 'offer', component: () => import('pages/OfferEdit.vue'), meta: { requiresAuth: true } },
-      { path: 'home', component: () => import('pages/Register.vue'), meta: { requiresAuth: true } }
+      { path: 'home', component: () => import('pages/Register.vue'), meta: { requiresAuth: true } },
+      { path: 'vistis', component: () => import('pages/MyVisits.vue'), meta: { requiresAuth: true } }
     ]
   },
 

@@ -65,6 +65,30 @@
             <q-item-label>Strona główna</q-item-label>
           </q-item-section>
         </q-item>
+        <q-item clickable exact to="/offer">
+          <q-item-section avatar>
+            <q-icon name="edit"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Edycja oferty</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable exact to="/vistis">
+          <q-item-section avatar>
+            <q-icon name="event_note"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Moje wizyty</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable exact to="/reserve">
+          <q-item-section avatar>
+            <q-icon name="note_add"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Rezerwuj</q-item-label>
+          </q-item-section>
+        </q-item>
         <!-- <EssentialLink
           v-for="link in essentialLinks"
           :key="link.title"

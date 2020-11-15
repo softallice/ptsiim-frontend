@@ -46,7 +46,10 @@ export default {
       })
         .then(response => {
           const token = response.data.accessToken
+          const userId = response.data.user._id
+          console.log(userId)
           localStorage.setItem('jwt', token)
+          localStorage.setItem('userId', userId)
           if (token) {
             this.$router.push('/offer')
           }

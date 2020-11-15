@@ -93,7 +93,7 @@
           </div>
         </template>
         <q-stepper-navigation>
-          <q-btn color="primary" label="Zakończ" :disable="!isDone"/>
+          <q-btn color="primary" label="Zakończ" :disable="!isDone" @click="saveVisit()"/>
           <q-btn color="primary" outline label="Wstecz" @click="step = 4"/>
         </q-stepper-navigation>
       </q-step>
@@ -111,6 +111,7 @@
 import CalendarView from 'components/CalendarView'
 import QCalendar from '@quasar/quasar-ui-qcalendar'
 import MediaCapture from 'components/MediaCapture'
+import axios from 'axios'
 
 export default {
   // name: 'PageName',
@@ -198,6 +199,32 @@ export default {
     }
   },
   methods: {
+    saveVisit () {
+      console.log(localStorage)
+      if (this.event.doctor != null && this.event.type != null && this.event.date != null && this.event.time != null) {
+        axios({
+          method: 'post',
+          url: '/api/visit/',
+          data: {
+            user_id: localStorage.getItem('userId'),
+            title: this.event.type.label,
+            doctor: this.event.doctor.label,
+            isMedical: true,
+            date: this.event.date,
+            time: this.event.time,
+            duration: this.event.duration,
+            description: this.event.description
+          }
+        })
+          .then(response => {
+            console.log(response)
+            this.$router.push('/vistis')
+          })
+          .catch(error => {
+            console.log(error)
+          })
+      }
+    },
     calendarNext () {
       this.$refs.calendar.next()
     },
