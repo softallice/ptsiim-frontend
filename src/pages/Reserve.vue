@@ -217,7 +217,7 @@ export default {
         })
         return
       }
-      const endTime = QCalendar.addToDate(startTime, { minute: this.event.duration })
+      // const endTime = QCalendar.addToDate(startTime, { minute: this.event.duration })
       const conflictingEvent = this.events.find(e => {
         const eStart = QCalendar.parsed(`${e.date} ${e.time}`)
         const eStop = QCalendar.addToDate(eStart, { minute: e.duration })

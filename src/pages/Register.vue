@@ -8,7 +8,7 @@
           <template v-slot:control>
           <q-btn-toggle
             class="q-my-sm"
-            v-model="form.isMedic"
+            v-model="form.isDoctor"
             rounded
             toggle-color="primary"
             :options="[
@@ -27,14 +27,20 @@
         <q-input class="col-12 col-md-6" type="password" outlined label="Hasło" v-model="form.password"/>
         <q-input class="col-12 col-md-6" type="password" outlined label="Powtórz hasło" v-model="form.passwordConfirmation"/>
         <q-input class="col-12" outlined label="Numer telefonu" v-model="form.telephoneNumber"/>
-        <q-input class="col-12" outlined label="Numer PESEL" v-model="form.pesel"/>
+        <q-input class="col-12" outlined label="Numer PESEL" v-model="form.PESEL"/>
         <q-field class="col-12" label="Płeć" borderless stack-label>
           <template v-slot:control>
             <q-radio v-model="form.sex" :val="false" label="Mężczyzna"/>
             <q-radio v-model="form.sex" :val="true" label="Kobieta"/>
           </template>
         </q-field>
-        <div v-if="error===true" style="color:red;">{{ error_message}}</div>
+        <div v-if="error===true" style="color:red;">
+          <ul id="errors">
+            <li v-for="item in errors_list" :key="item.msg">
+                {{ item.msg }}
+            </li>
+          </ul>
+        </div>
         <div class="col-12">
           <q-btn color="primary" label="Zarejestruj się" type="submit"/>
         </div>
@@ -50,7 +56,7 @@ export default {
   data () {
     return {
       form: {
-        isMedic: false,
+        isDoctor: false,
         firstName: '',
         lastName: '',
         email: '',
@@ -58,18 +64,18 @@ export default {
         passwordConfirmation: '',
         telephoneNumber: '',
         sex: false,
-        pesel: ''
+        PESEL: ''
       },
       showPassword: false,
       error: false,
-      error_message: ''
+      errors_list: []
     }
   },
   methods: {
     onSubmit () {
       axios({
         method: 'post',
-        url: '/api/users/register', // make sure your endpoint is correct
+        url: '/api/user/', // make sure your endpoint is correct
         data: this.form
       })
         .then(response => {
@@ -81,7 +87,7 @@ export default {
         // handle error
           console.log(error.response)
           this.error = true
-          this.error_message = error.response.data.msg
+          this.errors_list = error.response.data.errors
         })
     }
   },

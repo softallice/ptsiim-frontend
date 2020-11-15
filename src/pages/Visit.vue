@@ -105,7 +105,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex'
+import { mapGetters } from 'vuex'
 import MediaCapture from 'components/MediaCapture'
 import CalendarView from 'components/CalendarView'
 import QCalendar from '@quasar/quasar-ui-qcalendar'
@@ -189,7 +189,7 @@ export default {
         })
         return
       }
-      const endTime = QCalendar.addToDate(startTime, { minute: this.visit.duration })
+      // const endTime = QCalendar.addToDate(startTime, { minute: this.visit.duration })
       const conflictingEvent = this.events.find(e => {
         const eStart = QCalendar.parsed(`${e.date} ${e.time}`)
         const eStop = QCalendar.addToDate(eStart, { minute: e.duration })

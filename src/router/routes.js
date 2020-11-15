@@ -7,10 +7,10 @@ const routes = [
       { path: '', component: () => import('pages/Index.vue') },
       { path: 'login', component: () => import('pages/Login.vue') },
       { path: 'register', component: () => import('pages/Register.vue') },
-      { path: 'reserve', component: () => import('pages/Reserve.vue') },
-      { path: 'visit/:id', component: () => import('pages/Visit.vue') },
-      { path: 'offer', component: () => import('pages/OfferEdit.vue') },
-      { path: 'home', component: () => import('pages/Register.vue') }
+      { path: 'reserve', component: () => import('pages/Reserve.vue'), meta: { requiresAuth: true } },
+      { path: 'visit/:id', component: () => import('pages/Visit.vue'), meta: { requiresAuth: true } },
+      { path: 'offer', component: () => import('pages/OfferEdit.vue'), meta: { requiresAuth: true } },
+      { path: 'home', component: () => import('pages/Register.vue'), meta: { requiresAuth: true } }
     ]
   },
 

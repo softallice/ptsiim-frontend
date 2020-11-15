@@ -34,27 +34,26 @@ export default {
       },
       showPassword: false,
       error: false,
-      error_message: ''
+      error_message: 'Niepoprawny login lub hasło.'
     }
   },
   methods: {
     onSubmit () {
       axios({
         method: 'post',
-        url: '/api/users/login', // make sure your endpoint is correct
+        url: '/api/auth/',
         data: this.form
       })
         .then(response => {
-        // handle success
-          console.log(response)
-          this.$router.push('/')
-        // do some stuff here: redirect or something you want
+          const token = response.data.accessToken
+          localStorage.setItem('jwt', token)
+          if (token) {
+            this.$router.push('/offer')
+          }
         })
         .catch(error => {
-        // handle error
-          console.log(error.response)
+          console.log(error)
           this.error = true
-          this.error_message = error.response.data.msg
         })
     }
   },
