@@ -21,7 +21,7 @@ export function logout ({ commit }) {
 }
 
 export function getUserData ({ state, commit }) {
-  userService.getMyUser(state.accessToken)
+  return userService.getMyUser(state.accessToken)
     .then(res => {
       commit('setUserData', res.data)
     })

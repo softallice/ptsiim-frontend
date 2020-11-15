@@ -77,6 +77,14 @@
             <q-item-label>Strona główna</q-item-label>
           </q-item-section>
         </q-item>
+        <q-item clickable exact to="/reserve">
+          <q-item-section avatar>
+            <q-icon name="note_add"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Zarezerwuj wizytę</q-item-label>
+          </q-item-section>
+        </q-item>
         <!-- <EssentialLink
           v-for="link in essentialLinks"
           :key="link.title"
