@@ -35,24 +35,36 @@
     >
       <q-list>
         <q-item-label header class="text-grey-8">
-          Konto
+          {{ accountString }}
         </q-item-label>
-        <q-item clickable to="/login">
-          <q-item-section avatar>
-            <q-icon name="login"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Zaloguj się</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item clickable to="/register">
-          <q-item-section avatar>
-            <q-icon name="person_add"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Zarejestruj się</q-item-label>
-          </q-item-section>
-        </q-item>
+        <template v-if="!isLoggedIn">
+          <q-item clickable to="/login">
+            <q-item-section avatar>
+              <q-icon name="login"/>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Zaloguj się</q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item clickable to="/register">
+            <q-item-section avatar>
+              <q-icon name="person_add"/>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Zarejestruj się</q-item-label>
+            </q-item-section>
+          </q-item>
+        </template>
+        <template v-else>
+          <q-item @click="$store.dispatch('user/logout')" clickable>
+            <q-item-section avatar>
+              <q-icon name="logout"/>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Wyloguj się</q-item-label>
+            </q-item-section>
+          </q-item>
+        </template>
         <q-separator/>
         <q-item-label header class="text-grey-8">
           Nawigacja
@@ -144,8 +156,17 @@ export default {
   computed: {
     ...mapGetters({
       pageTitle: 'pageTitle',
-      headerIcon: 'headerIcon'
-    })
+      headerIcon: 'headerIcon',
+      isLoggedIn: 'user/isLoggedIn',
+      email: 'user/email'
+    }),
+    accountString () {
+      if (this.isLoggedIn) {
+        return this.email
+      } else {
+        return 'Konto'
+      }
+    }
   },
   methods: {
     toggleLeftDrawer () {

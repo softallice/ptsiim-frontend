@@ -1,7 +1,11 @@
 export function isLoggedIn (state) {
-  return state.loggedIn
+  return !!state.accessToken
 }
 
 export function userType (state) {
   return state.userData.type
+}
+
+export function email (state) {
+  return state.userData.email
 }

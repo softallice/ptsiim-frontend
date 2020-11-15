@@ -33,7 +33,23 @@ export default {
     }
   },
   methods: {
-    onSubmit () {}
+    onSubmit () {
+      this.$store.dispatch('user/login', this.form)
+        .then(() => {
+          this.$q.notify({
+            type: 'positive',
+            message: 'Zalogowano pomyślnie'
+          })
+          this.$router.push('/')
+        })
+        .catch(error => {
+          console.error(error)
+          this.$q.notify({
+            type: 'negative',
+            message: 'Wystąpił błąd'
+          })
+        })
+    }
   },
   mounted () {
     this.$store.commit('setPageTitle', 'Logowanie')

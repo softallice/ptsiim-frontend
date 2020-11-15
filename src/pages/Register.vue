@@ -4,11 +4,15 @@
     <p class="text-body1">Wypełnij poniższy formularz, aby utworzyć nowe konto w systemie</p>
     <div class="q-py-md">
       <q-form @submit.prevent="onSubmit" class="row q-col-gutter-md">
-        <q-field class="col-12" label="Jestem" borderless stack-label>
+        <q-field class="col-12" label="Jestem"
+        :error-message="errors.isDoctor"
+        :error="!!errors.isDoctor"
+        bottom-slots
+        borderless stack-label>
           <template v-slot:control>
           <q-btn-toggle
             class="q-my-sm"
-            v-model="form.isMedic"
+            v-model="form.isDoctor"
             rounded
             toggle-color="primary"
             :options="[
@@ -21,14 +25,45 @@
           />
           </template>
         </q-field>
-        <q-input class="col-12 col-md-6" outlined label="Imię" v-model="form.firstName"/>
-        <q-input class="col-12 col-md-6" outlined label="Nazwisko" v-model="form.lastName"/>
-        <q-input class="col-12" type="email" outlined label="E-mail" v-model="form.email"/>
-        <q-input class="col-12 col-md-6" type="password" outlined label="Hasło" v-model="form.password"/>
-        <q-input class="col-12 col-md-6" type="password" outlined label="Powtórz hasło" v-model="form.passwordConfirmation"/>
-        <q-input class="col-12" outlined label="Numer telefonu" v-model="form.telephoneNumber"/>
-        <q-input class="col-12" outlined label="Numer PESEL" v-model="form.pesel"/>
-        <q-field class="col-12" label="Płeć" borderless stack-label>
+        <q-input class="col-12 col-md-6" outlined label="Imię" :error-message="errors.firstName"
+          :error="!!errors.firstName"
+          bottom-slots
+          v-model="form.firstName"/>
+        <q-input class="col-12 col-md-6" outlined label="Nazwisko"
+        :error-message="errors.lastName"
+        :error="!!errors.lastName"
+        bottom-slots
+        v-model="form.lastName"/>
+        <q-input class="col-12" type="email"
+        :error-message="errors.email"
+        :error="!!errors.email"
+        bottom-slots
+        outlined label="E-mail" v-model="form.email"/>
+        <q-input class="col-12 col-md-6" type="password"
+        :error-message="errors.password"
+        :error="!!errors.password"
+        bottom-slots
+        outlined label="Hasło" v-model="form.password"/>
+        <q-input class="col-12 col-md-6" type="password"
+        :error-message="errors.passwordConfirmation"
+        :error="!!errors.passwordConfirmation"
+        bottom-slots
+        outlined label="Powtórz hasło" v-model="form.passwordConfirmation"/>
+        <q-input class="col-12"
+        :error-message="errors.telephoneNumber"
+        :error="!!errors.telephoneNumber"
+        bottom-slots
+        outlined label="Numer telefonu" v-model="form.telephoneNumber"/>
+        <q-input class="col-12"
+        :error-message="errors.PESEL"
+        :error="!!errors.PESEL"
+        bottom-slots
+        outlined label="Numer PESEL" v-model="form.PESEL"/>
+        <q-field class="col-12" label="Płeć"
+        :error-message="errors.sex"
+        :error="!!errors.sex"
+        bottom-slots
+        borderless stack-label>
           <template v-slot:control>
             <q-radio v-model="form.sex" :val="false" label="Mężczyzna"/>
             <q-radio v-model="form.sex" :val="true" label="Kobieta"/>
@@ -42,12 +77,14 @@
   </q-page>
 </template>
 <script>
+import authService from 'services/auth.service.js'
+
 export default {
   name: 'RegisterPage',
   data () {
     return {
       form: {
-        isMedic: false,
+        isDoctor: false,
         firstName: '',
         lastName: '',
         email: '',
@@ -55,13 +92,54 @@ export default {
         passwordConfirmation: '',
         telephoneNumber: '',
         sex: false,
-        pesel: ''
+        PESEL: ''
       },
-      showPassword: false
+      showPassword: false,
+      errors: {
+        isDoctor: null,
+        firstName: null,
+        lastName: null,
+        email: null,
+        password: null,
+        passwordConfirmation: null,
+        telephoneNumber: null,
+        sex: null,
+        PESEL: null
+      }
     }
   },
   methods: {
-    onSubmit () {}
+    onSubmit () {
+      authService.register(this.form)
+        .then(result => {
+          console.log(result)
+          this.$q.notify({
+            type: 'positive',
+            message: 'Zarejestrowano pomyślnie!'
+          })
+        })
+        .catch(error => {
+          console.error(error)
+          if (error.response) {
+            if (error.response.status === 422) {
+              error.response.data.errors.forEach((err) => {
+                console.log(err)
+                this.errors[err.param] = err.msg
+              })
+              return this.$q.notify({
+                type: 'warning',
+                message:
+                    'Podano złe dane, sprawdź formularz i spróbuj ponownie'
+              })
+            }
+          } else {
+            this.$q.notify({
+              type: 'negative',
+              message: 'Błąd podczas rejestracji'
+            })
+          }
+        })
+    }
   },
   mounted () {
     this.$store.commit('setPageTitle', 'Rejestracja')
