@@ -59,13 +59,16 @@
     <q-page-sticky expand position="top">
       <q-toolbar class="bg-white text-black shadow-up-4">
         <q-space/>
-        <q-btn color="primary" :label="saveButtonLabel" :disable="!modified" @click="modified = false"/>
+        <q-btn color="primary" :label="saveButtonLabel" :disable="!modified" @click="saveOffer"/>
       </q-toolbar>
     </q-page-sticky>
   </q-page>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+import offerService from 'services/offer.service'
+
 export default {
   // name: 'PageName',
   data () {
@@ -84,16 +87,6 @@ export default {
           field: (row) => row.price,
           align: 'left',
           sortable: true
-        }
-      ],
-      data: [
-        {
-          name: 'Wyrywanie zęba',
-          price: 150
-        },
-        {
-          name: 'Leczenie kanałowe',
-          price: 500
         }
       ],
       newService: {
@@ -125,6 +118,23 @@ export default {
       })
       this.selected = []
       this.modified = true
+    },
+    saveOffer () {
+      offerService.saveDoctorOffer(this.data, this.$store.state.user.accessToken)
+        .then(res => {
+          this.$q.notify({
+            type: 'positive',
+            message: 'Zapisano zmiany'
+          })
+          this.modified = false
+        })
+        .catch(error => {
+          console.error(error)
+          this.$q.notify({
+            type: 'negative',
+            message: 'Wystąpił błąd podczas zapisywania oferty, spróbuj ponownie!'
+          })
+        })
     }
   },
   computed: {
@@ -134,7 +144,10 @@ export default {
       } else {
         return 'Wszystkie zmiany zapisane'
       }
-    }
+    },
+    ...mapGetters({
+      data: 'user/offer'
+    })
   },
   mounted () {
     this.$store.commit('setPageTitle', 'Edycja oferty')

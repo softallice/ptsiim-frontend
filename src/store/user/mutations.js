@@ -39,3 +39,7 @@ export function login (state, accessToken) {
   parseUserData(state, accessToken)
   setAccessToken(state, accessToken)
 }
+
+export function setOffer (state, offer) {
+  state.offer = offer
+}
