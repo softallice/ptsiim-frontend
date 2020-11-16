@@ -26,22 +26,22 @@
         :name="2"
         title="Wybierz usługę"
         icon="work"
-        :done="event.type != null"
+        :done="event.service.label != null"
       >
-        <q-select v-if="event.doctor" :options="event.doctor.offer" v-model="event.type" outlined>
+        <q-select v-if="event.doctor" :options="offer" v-model="event.service" outlined>
           <template v-slot:option="scope">
             <q-item
               v-bind="scope.itemProps"
               v-on="scope.itemEvents"
             >
               <q-item-section>
-                <q-item-label>{{ scope.opt.label }} ({{ scope.opt.price | priceFilter }})</q-item-label>
+                <q-item-label>{{ scope.opt.label }} ({{ scope.opt.price }} zł)</q-item-label>
               </q-item-section>
             </q-item>
           </template>
         </q-select>
         <q-stepper-navigation>
-          <q-btn color="primary" label="Dalej" @click="step = 3" :disable="event.type === null"/>
+          <q-btn color="primary" label="Dalej" @click="step = 3" :disable="event.service.name === null"/>
           <q-btn color="primary" outline label="Wstecz" @click="step = 1"/>
         </q-stepper-navigation>
       </q-step>
@@ -112,6 +112,8 @@ import CalendarView from 'components/CalendarView'
 import QCalendar from '@quasar/quasar-ui-qcalendar'
 import MediaCapture from 'components/MediaCapture'
 import eventService from 'src/services/event.service'
+import userService from 'src/services/user.service'
+import offerService from 'src/services/offer.service'
 
 export default {
   // name: 'PageName',
@@ -135,7 +137,10 @@ export default {
         time: null,
         duration: 59,
         description: null,
-        type: null,
+        service: {
+          label: null,
+          price: null
+        },
         media: []
       },
       events: [
@@ -156,47 +161,29 @@ export default {
           editable: false
         }
       ],
-      doctors: [
-        {
-          label: 'Jan Kowalski',
-          value: 'id1',
-          offer: [
-            {
-              label: 'Leczenie kanałowe',
-              price: [500, 1000]
-            },
-            {
-              label: 'Wyrywanie zęba',
-              price: 100
-            }
-          ]
-        },
-        {
-          label: 'Adam Bengalski',
-          value: 'id2',
-          offer: [
-            {
-              label: 'Kanałowe leczenie',
-              price: [500, 1000]
-            },
-            {
-              label: 'Zęba wyrwanie',
-              price: 100
-            }
-          ]
-        }
-      ],
+      doctors: [],
+      offer: [],
       showMediaCapture: false
     }
   },
   computed: {
     isDone () {
-      if (this.event.doctor != null && this.event.type != null && this.event.date != null && this.event.time != null) {
+      if (this.event.doctor != null && this.event.service.label != null && this.event.date != null && this.event.time != null) {
         return true
       } else {
         return false
       }
     }
+  },
+  mounted () {
+    userService.getUsers({ isDoctor: true }).then(res => {
+      this.doctors = res.data.map((doctor) => {
+        return {
+          label: `${doctor.firstName} ${doctor.lastName}`,
+          id: doctor._id
+        }
+      })
+    })
   },
   methods: {
     calendarNext () {
@@ -248,8 +235,8 @@ export default {
     save () {
       eventService.createEvent({
         creatorId: this.$store.state.user.userData.id,
-        doctor: this.event.doctor.label,
-        title: this.event.type.label,
+        doctorId: this.event.doctor.id,
+        title: this.event.service.label,
         description: this.event.description,
         date: this.event.date,
         time: this.event.time,
@@ -264,22 +251,29 @@ export default {
           })
           this.$router.push('/')
         })
-    }
-  },
-  filters: {
-    priceFilter (value) {
-      if (Array.isArray(value)) {
-        return `${value[0]} - ${value[1]} zł`
-      } else {
-        return `${value} zł`
-      }
+        .catch(error => {
+          console.error(error)
+          this.$q.notify({
+            type: 'negative',
+            message: 'Wystąpił błąd!'
+          })
+        })
     }
   },
   watch: {
-    'event.doctor' () {
+    'event.doctor' (newValue) {
       this.event.type = null
       this.event.date = null
       this.event.time = null
+      offerService.getDoctorOffer(newValue.id).then(services => {
+        this.offer = services.map(service => {
+          return {
+            label: service.name,
+            price: service.price,
+            id: service._id
+          }
+        })
+      })
     }
   }
 }
