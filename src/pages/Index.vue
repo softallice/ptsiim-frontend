@@ -1,17 +1,83 @@
 <template>
-  <q-page class="q-page--contained" padding>
-    <h4>Lista wizyt</h4>
-    <visit-list :events="this.$store.state.events.events"/>
+  <q-page :class="{'q-page--contained': !isLoggedIn }" padding>
+    <template v-if="isLoggedIn">
+      <template v-if="userType == 'doctor'">
+        <h4>Kalendarz wizyt</h4>
+        <calendar-view/>
+      </template>
+      <div class="row q-col-gutter-md">
+        <div class="col-12 col-md-6">
+          <h4>Historia wizyt</h4>
+          <event-list :events="this.$store.state.events.events"/>
+        </div>
+        <div class="col-12 col-md-6">
+          <h4>Ostatnie wiadomości</h4>
+          <q-list bordered separator>
+            <q-item clickable to="/chat/1">
+              <q-item-section>
+                <q-item-label>
+                  Adam Bengalski
+                </q-item-label>
+                <q-item-label caption>
+                  Treść ostatniej wiadomości
+                </q-item-label>
+              </q-item-section>
+              <q-item-section side top>
+                <q-item-label>dzisiaj, 11:35</q-item-label>
+              </q-item-section>
+            </q-item>
+            <q-item clickable to="/chat/1">
+              <q-item-section>
+                <q-item-label>
+                  Jan Kowalski
+                </q-item-label>
+                <q-item-label caption>
+                  Treść ostatniej wiadomości
+                </q-item-label>
+              </q-item-section>
+              <q-item-section side top>
+                <q-item-label>wczoraj, 15:35</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </div>
+      </div>
+    </template>
+    <template v-else>
+      <div class="text-body1">
+        <p class="text-body1">Witaj w serwisie!</p>
+        <p>Aby skorzystać z funkcjonalności aplikacji, musisz posiadać konto w serwisie i być zalogowanym</p>
+      </div>
+      <div class="row q-col-gutter-md">
+        <div class="col-12 col-md-6">
+          <q-btn to="register" color="primary" class="full-width"
+            >Rejestracja</q-btn
+          >
+        </div>
+        <div class="col-12 col-md-6">
+          <q-btn
+            color="primary"
+            class="col-12 col-md-6 full-width"
+            to="login"
+            outline
+            >Logowanie</q-btn
+          >
+        </div>
+      </div>
+    </template>
   </q-page>
 </template>
 
 <script>
-import VisitList from 'components/VisitList'
+import { mapGetters } from 'vuex'
+import EventList from 'components/EventList'
+import CalendarView from 'src/components/CalendarView.vue'
 
 export default {
   name: 'PageIndex',
   components: {
-    VisitList
+    EventList,
+    CalendarView
   },
   mounted () {
     this.$store.commit('setPageTitle', 'Strona główna')
@@ -19,6 +85,12 @@ export default {
       .then(() => {
         this.$store.dispatch('events/getMyEvents')
       })
+  },
+  computed: {
+    ...mapGetters({
+      isLoggedIn: 'user/isLoggedIn',
+      userType: 'user/userType'
+    })
   }
 }
 </script>

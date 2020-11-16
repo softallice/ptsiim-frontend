@@ -3,7 +3,7 @@ export default function () {
     loggedIn: true,
     userData: {
       id: null,
-      type: 'patient',
+      type: null,
       firstName: null,
       lastName: null,
       email: null
