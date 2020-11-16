@@ -18,10 +18,11 @@ export function login ({ commit, dispatch }, userCredentials) {
 export function logout ({ commit }) {
   LocalStorage.remove('accessToken')
   commit('removeAccessToken')
+  commit('clearUserData')
 }
 
 export function getUserData ({ state, commit }) {
-  userService.getMyUser(state.accessToken)
+  return userService.getMyUser(state.accessToken)
     .then(res => {
       commit('setUserData', res.data)
     })

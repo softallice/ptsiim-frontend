@@ -77,6 +77,22 @@
             <q-item-label>Strona główna</q-item-label>
           </q-item-section>
         </q-item>
+        <q-item clickable v-if="userType === 'patient'" exact to="/reserve">
+          <q-item-section avatar>
+            <q-icon name="note_add"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Zarezerwuj wizytę</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-if="userType === 'doctor'" exact to="/offer">
+          <q-item-section avatar>
+            <q-icon name="edit"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Edytuj ofertę</q-item-label>
+          </q-item-section>
+        </q-item>
         <!-- <EssentialLink
           v-for="link in essentialLinks"
           :key="link.title"
@@ -158,7 +174,8 @@ export default {
       pageTitle: 'pageTitle',
       headerIcon: 'headerIcon',
       isLoggedIn: 'user/isLoggedIn',
-      email: 'user/email'
+      email: 'user/email',
+      userType: 'user/userType'
     }),
     accountString () {
       if (this.isLoggedIn) {

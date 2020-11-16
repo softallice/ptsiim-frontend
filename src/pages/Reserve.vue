@@ -93,7 +93,7 @@
           </div>
         </template>
         <q-stepper-navigation>
-          <q-btn color="primary" label="Zakończ" :disable="!isDone"/>
+          <q-btn color="primary" label="Zakończ" @click="save" :disable="!isDone"/>
           <q-btn color="primary" outline label="Wstecz" @click="step = 4"/>
         </q-stepper-navigation>
       </q-step>
@@ -111,6 +111,7 @@
 import CalendarView from 'components/CalendarView'
 import QCalendar from '@quasar/quasar-ui-qcalendar'
 import MediaCapture from 'components/MediaCapture'
+import eventService from 'src/services/event.service'
 
 export default {
   // name: 'PageName',
@@ -243,6 +244,26 @@ export default {
       this.event.media = this.event.media.filter((p) => {
         return p !== pic
       })
+    },
+    save () {
+      eventService.createEvent({
+        creatorId: this.$store.state.user.userData.id,
+        doctor: this.event.doctor.label,
+        title: this.event.type.label,
+        description: this.event.description,
+        date: this.event.date,
+        time: this.event.time,
+        isMedical: true,
+        duration: this.event.duration
+      })
+        .then(res => {
+          console.log(res)
+          this.$q.notify({
+            type: 'positive',
+            message: 'Poprawnie zarezerwowano wizytę'
+          })
+          this.$router.push('/')
+        })
     }
   },
   filters: {
