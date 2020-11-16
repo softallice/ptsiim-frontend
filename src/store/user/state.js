@@ -8,6 +8,7 @@ export default function () {
       lastName: null,
       email: null
     },
-    accessToken: null
+    accessToken: null,
+    offer: []
   }
 }
