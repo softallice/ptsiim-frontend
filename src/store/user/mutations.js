@@ -43,3 +43,9 @@ export function login (state, accessToken) {
 export function setOffer (state, offer) {
   state.offer = offer
 }
+
+export function deleteSelectedFromOffer (state, selected) {
+  state.offer = state.offer.filter(item => {
+    return selected.indexOf(item) === -1
+  })
+}

@@ -35,17 +35,17 @@
       </q-card>
       <q-card class="col-12">
         <q-card-section>
-          <div class="text-h6">Opis <q-btn color="primary" class="absolute" style="top: 16px; right: 8px" flat label="Edytuj" @click="$refs.descriptionEdit.show()"/></div>
+          <div class="text-h6">Opis <q-btn v-if="userType === 'patient'" color="primary" class="absolute" style="top: 16px; right: 8px" flat label="Edytuj" @click="$refs.descriptionEdit.show()"/></div>
         </q-card-section>
         <q-card-section>
           <div class="cursor-input">{{ visit.description }}
-            <q-popup-edit v-model="visit.description" ref="descriptionEdit" auto-save>
+            <q-popup-edit :disable="userType === 'doctor'" v-model="visit.description" ref="descriptionEdit" auto-save>
               <q-input type="textarea" v-model="visit.description"/>
             </q-popup-edit>
           </div>
         </q-card-section>
       </q-card>
-      <q-card class="col-12">
+      <q-card v-if="userType === 'patient'" class="col-12">
         <q-card-section>
           <div class="text-h6">Zdjęcia</div>
         </q-card-section>
@@ -135,7 +135,7 @@ export default {
         date: '2020-11-10',
         time: '16:00',
         duration: 59,
-        description: 'Stramsznie boli mnje zomb. Proszem coś z dym zropić',
+        description: 'Boli mnie ząb',
         media: []
       },
       showMediaCapture: false,
