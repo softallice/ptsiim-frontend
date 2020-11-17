@@ -113,9 +113,7 @@ export default {
       this.newService.price = null
     },
     deleteSelected () {
-      this.data = this.data.filter(item => {
-        return this.selected.indexOf(item) === -1
-      })
+      this.$store.commit('user/deleteSelectedFromOffer', this.selected)
       this.selected = []
       this.modified = true
     },
