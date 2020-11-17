@@ -6,9 +6,9 @@
           <div class="text-h6">Pacjent</div>
         </q-card-section>
         <q-card-section>
-          <span class="text-bold">Imię:</span> {{ visit.patient.firstName }}<br>
-          <span class="text-bold">Nazwisko:</span> {{ visit.patient.lastName }}<br>
-          <span class="text-bold">Data urodzenia:</span> {{ visit.patient.birthDt }}
+          <span class="text-bold">Imię:</span> {{ visit.creator.firstName }}<br>
+          <span class="text-bold">Nazwisko:</span> {{ visit.creator.lastName }}<br>
+          <span class="text-bold">Data urodzenia:</span> {{ visit.creator.birthDt }}
         </q-card-section>
       </q-card>
       <q-card class="col-12">
@@ -29,8 +29,8 @@
           </div>
         </q-card-section>
         <q-card-section>
-          <span class="text-bold">Zabieg:</span> {{ visit.type.name }}<br>
-          <span class="text-bold">Data:</span> {{ visit.date }} {{ visit.time }}
+          <span class="text-bold">Zabieg:</span><br>
+          <span class="text-bold">Data:</span> {{ visit.startDate }}
         </q-card-section>
       </q-card>
       <q-card class="col-12">
@@ -45,7 +45,7 @@
           </div>
         </q-card-section>
       </q-card>
-      <q-card v-if="userType === 'patient'" class="col-12">
+      <q-card v-if="false" class="col-12">
         <q-card-section>
           <div class="text-h6">Zdjęcia</div>
         </q-card-section>
@@ -97,6 +97,7 @@
     />
     <q-page-sticky expand position="bottom">
       <q-toolbar class="bg-white text-black shadow-up-4">
+        <q-btn color="primary" label="Otwórz czat" @click="openChat"/>
         <q-space/>
         <q-btn color="primary" :label="saveButtonLabel" :disable="!modified" @click="modified = false"/>
       </q-toolbar>
@@ -109,6 +110,8 @@ import { mapGetters, mapMutations } from 'vuex'
 import MediaCapture from 'components/MediaCapture'
 import CalendarView from 'components/CalendarView'
 import QCalendar from '@quasar/quasar-ui-qcalendar'
+import eventService from 'src/services/event.service'
+import chatService from 'src/services/chat.service'
 
 export default {
   // name: 'PageName',
@@ -119,50 +122,37 @@ export default {
   data () {
     return {
       visit: {
-        title: 'Twoja wizyta',
-        patient: {
-          firstName: 'Stefan',
-          lastName: 'Przykładowy',
-          birthDt: '12.12.1994'
+        title: null,
+        creator: {
+          _id: null,
+          firstName: null,
+          lastName: null,
+          birthDt: null
         },
         doctor: {
-          firstName: 'Jan',
-          lastName: 'Kowalski'
+          _id: null,
+          firstName: null,
+          lastName: null
         },
-        type: {
-          name: 'Leczenie kanałowe'
-        },
-        date: '2020-11-10',
-        time: '16:00',
+        date: null,
+        time: null,
         duration: 59,
-        description: 'Boli mnie ząb',
+        description: null,
         media: []
       },
       showMediaCapture: false,
       modified: false,
       changeDateDialog: false,
       events: [
-        {
-          title: 'Termin zajęty',
-          date: '2020-11-09',
-          time: '09:00',
-          duration: 119,
-          color: 'grey-9',
-          editable: false
-        },
-        {
-          title: 'Termin zajęty',
-          date: '2020-11-09',
-          time: '12:00',
-          duration: 59,
-          color: 'grey-9',
-          editable: false
-        }
       ]
     }
   },
   mounted () {
     this.$store.commit('setPageTitle', 'Szczegóły wizyty')
+    eventService.getEvent(this.$route.params.id)
+      .then(event => {
+        this.visit = event
+      })
   },
   methods: {
     mediaCaptureClosed () {
@@ -204,6 +194,21 @@ export default {
           message: 'Termin jest zajęty'
         })
       }
+    },
+    openChat () {
+      chatService.getRoomByUsers(this.visit.creator._id, this.visit.doctor._id)
+        .then(res => {
+          const { _id } = res.data
+          this.$router.push(`/chat/${_id}`)
+        })
+        .catch(error => {
+          console.error(error)
+          chatService.createRoom(this.visit.creator._id, this.visit.doctor._id)
+            .then(res => {
+              const { _id } = res.data
+              this.$router.push(`/chat/${_id}`)
+            })
+        })
     }
   },
   computed: {

@@ -11,7 +11,7 @@
       <q-card-actions align="right">
         <q-btn flat icon="event"/>
         <q-btn flat>{{ event.startDate | dateFilter }}</q-btn>
-        <q-btn color="primary" to="/visit/1" flat>Szczegóły</q-btn>
+        <q-btn color="primary" :to="`/visit/${event._id}`" flat>Szczegóły</q-btn>
       </q-card-actions>
     </q-card>
 </div>

@@ -13,3 +13,7 @@ export function email (state) {
 export function offer (state) {
   return state.offer
 }
+
+export function id (state) {
+  return state.userData.id
+}

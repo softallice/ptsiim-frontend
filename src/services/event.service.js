@@ -10,7 +10,18 @@ export async function getUserEvents (userId) {
   return request('GET', `/user/${userId}/events`)
 }
 
+export function getEvent (eventId) {
+  return new Promise((resolve, reject) => {
+    request('GET', `/event/${eventId}`)
+      .then(res => {
+        const event = res.data
+        resolve(event)
+      })
+  })
+}
+
 export default {
   createEvent,
-  getUserEvents
+  getUserEvents,
+  getEvent
 }

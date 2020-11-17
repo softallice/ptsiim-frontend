@@ -234,8 +234,8 @@ export default {
     },
     save () {
       eventService.createEvent({
-        creatorId: this.$store.state.user.userData.id,
-        doctorId: this.event.doctor.id,
+        creator: this.$store.state.user.userData.id,
+        doctor: this.event.doctor.id,
         title: this.event.service.label,
         description: this.event.description,
         date: this.event.date,

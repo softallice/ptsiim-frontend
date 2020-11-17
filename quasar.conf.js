@@ -85,7 +85,13 @@ module.exports = function (/* ctx */) {
       https: false,
       port: 8000,
       open: false, // opens browser window automatically,
-      host: '0.0.0.0'
+      host: '0.0.0.0',
+      proxy: {
+        '/socket.io': {
+          target: 'ws://localhost:3000',
+          ws: true
+        }
+      }
     },
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
