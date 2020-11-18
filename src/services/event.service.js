@@ -3,12 +3,15 @@ import { request, requestWithToken } from './shared'
 import { date } from 'quasar'
 
 export async function createEvent (visitData, token) {
-  const dt = new Date(visitData.date)
-  dt.setHours(visitData.time.split(':')[0])
-  dt.setMinutes(visitData.time.split(':')[1])
-  visitData.startDate = dt
-  delete visitData.date
-  delete visitData.time
+  if (!visitData.startDate) {
+    const dt = new Date(visitData.date)
+    dt.setHours(visitData.time.split(':')[0])
+    dt.setMinutes(visitData.time.split(':')[1])
+    visitData.startDate = dt
+    delete visitData.date
+    delete visitData.time
+  }
+
   return request('POST', '/event', {
     data: visitData
   })
@@ -41,8 +44,13 @@ export function getEvent (eventId) {
   })
 }
 
+export function removeEvent (eventId, token) {
+  return requestWithToken('DELETE', `/event/${eventId}`, token)
+}
+
 export default {
   createEvent,
   getUserEvents,
-  getEvent
+  getEvent,
+  removeEvent
 }

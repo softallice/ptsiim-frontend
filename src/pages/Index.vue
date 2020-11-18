@@ -3,7 +3,7 @@
     <template v-if="isLoggedIn">
       <template v-if="userType == 'doctor'">
         <h4>Kalendarz wizyt</h4>
-        <calendar-view :events="this.$store.state.events.events" :linkToVisit="true"/>
+        <calendar-view @delete="deleteEvent" :removables="true" :events="this.$store.state.events.events" :linkToVisit="true"/>
       </template>
       <div class="row q-col-gutter-md">
         <div class="col-12 col-md-6">
@@ -72,12 +72,19 @@
 import { mapGetters } from 'vuex'
 import EventList from 'components/EventList'
 import CalendarView from 'src/components/CalendarView.vue'
+import eventService from 'src/services/event.service'
 
 export default {
   name: 'PageIndex',
   components: {
     EventList,
     CalendarView
+  },
+  methods: {
+    deleteEvent (event) {
+      eventService.removeEvent(event._id, this.$store.getters['user/accessToken'])
+        .then(this.$store.dispatch('events/getMyEvents'))
+    }
   },
   mounted () {
     this.$store.commit('setPageTitle', 'Strona główna')
