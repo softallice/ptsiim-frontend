@@ -10,7 +10,8 @@ const routes = [
       { path: 'reserve', component: () => import('pages/Reserve.vue') },
       { path: 'visit/:id', component: () => import('pages/Visit.vue') },
       { path: 'offer', component: () => import('pages/OfferEdit.vue') },
-      { path: 'chat/:id', component: () => import('pages/Chat.vue') }
+      { path: 'chat/:id', component: () => import('pages/Chat.vue') },
+      { path: 'busy-time', component: () => import('pages/BusyTime.vue') }
     ]
   },
 

@@ -93,6 +93,14 @@
             <q-item-label>Edytuj ofertę</q-item-label>
           </q-item-section>
         </q-item>
+        <q-item clickable v-if="userType === 'doctor'" exact to="/busy-time">
+          <q-item-section avatar>
+            <q-icon name="alarm_off"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Czas zajętości</q-item-label>
+          </q-item-section>
+        </q-item>
         <!-- <EssentialLink
           v-for="link in essentialLinks"
           :key="link.title"

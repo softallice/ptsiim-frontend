@@ -1,6 +1,6 @@
 <template>
 <div>
-    <q-card class="q-mb-md" v-for="event in events" :key="event._id">
+    <q-card class="q-mb-md" v-for="event in eventsFiltered" :key="event._id">
       <q-card-section>
         <div class="text-h5">{{ event.title }}</div>
       </q-card-section>
@@ -25,6 +25,11 @@ export default {
     events: {
       type: Array,
       default: () => ([])
+    }
+  },
+  computed: {
+    eventsFiltered () {
+      return this.events.filter(event => event.isMedical)
     }
   },
   filters: {

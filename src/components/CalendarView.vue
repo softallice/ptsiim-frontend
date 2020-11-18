@@ -21,7 +21,7 @@
         <template #day-body="{ timestamp, timeStartPos, timeDurationHeight }">
           <template v-for="(event, index) in getEvents(timestamp.date)">
             <q-badge
-              @click="goToVisit(event)"
+              @click.self="goToVisit(event)"
               v-if="event.time"
               :color="event.color ? event.color : 'primary'"
               :key="index"
@@ -30,6 +30,7 @@
               :style="{ 'top': timeStartPos(event.time) + 'px', 'height': timeDurationHeight(event.duration) + 'px' }"
             >
               <q-icon v-if="event.icon" :name="event.icon" class="q-mr-xs"></q-icon><span class="ellipsis">{{ event.title || 'Termin zajęty' }}</span>
+              <q-icon v-if="!event.isMedical && removables" @click.capture="$emit('delete', event)" size="md" name="close" color="white" flat style="position: absolute; right: 4px; top: 4px;"/>
             </q-badge>
           </template>
         </template>
@@ -46,6 +47,10 @@ export default {
       default: () => ([])
     },
     linkToVisit: {
+      type: Boolean,
+      default: false
+    },
+    removables: {
       type: Boolean,
       default: false
     }
