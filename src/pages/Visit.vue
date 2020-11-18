@@ -164,6 +164,7 @@ export default {
         this.$nextTick(() => {
           this.modified = false
         })
+        this.visit.color = 'green-9'
         this.loading = false
       })
   },
@@ -246,9 +247,29 @@ export default {
     },
     'visit.date' () {
       this.modified = true
+      this.visit.startDate = new Date(this.visit.date)
+      this.visit.startDate.setHours(this.visit.time.split(':')[0])
+      this.visit.startDate.setMinutes(this.visit.time.split(':')[1])
     },
     'visit.time' () {
       this.modified = true
+      this.visit.startDate = new Date(this.visit.date)
+      this.visit.startDate.setHours(this.visit.time.split(':')[0])
+      this.visit.startDate.setMinutes(this.visit.time.split(':')[1])
+    },
+    'changeDateDialog' () {
+      eventService.getUserEvents(this.visit.doctor._id, this.$store.getters['user/accessToken'])
+        .then((events) => {
+          this.events = events.filter(event => {
+            return event._id !== this.visit._id
+          })
+          this.events = this.events.map((event) => {
+            if (event._id === this.visit._id) {
+              event.color = 'green-9'
+            }
+            return event
+          })
+        })
     }
   },
   filters: {
