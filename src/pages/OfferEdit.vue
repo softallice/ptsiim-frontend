@@ -96,7 +96,8 @@ export default {
       modified: false,
       newServiceDialog: false,
       deleteConfirmDialog: false,
-      selected: []
+      selected: [],
+      data: []
     }
   },
   methods: {
@@ -113,7 +114,9 @@ export default {
       this.newService.price = null
     },
     deleteSelected () {
-      this.$store.commit('user/deleteSelectedFromOffer', this.selected)
+      this.data = this.data.filter(item => {
+        return this.selected.indexOf(item) === -1
+      })
       this.selected = []
       this.modified = true
     },
@@ -142,13 +145,17 @@ export default {
       } else {
         return 'Wszystkie zmiany zapisane'
       }
-    },
-    ...mapGetters({
-      data: 'user/offer'
-    })
+    }
   },
   mounted () {
     this.$store.commit('setPageTitle', 'Edycja oferty')
+    this.$store.dispatch('user/getUserData')
+      .then(() => {
+        offerService.getDoctorOffer(this.$store.getters['user/id'])
+          .then(services => {
+            this.data = services
+          })
+      })
   }
 }
 </script>
