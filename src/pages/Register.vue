@@ -54,7 +54,24 @@
         :error="!!errors.telephoneNumber"
         bottom-slots
         outlined label="Numer telefonu" v-model="form.telephoneNumber"/>
-        <q-input class="col-12"
+        <q-input class="col-12 col-md-6" outlined v-model="form.birthDt" mask="##.##.####" label="Data urodzenia"
+          bottom-slots
+          :error-message="errors.birthDt"
+          :error="!!errors.birthDt"
+          >
+          <template v-slot:append>
+            <q-icon name="event" class="cursor-pointer">
+              <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
+                <q-date v-model="form.birthDt" mask="DD.MM.YYYY">
+                  <div class="row items-center justify-end">
+                    <q-btn v-close-popup label="Close" color="primary" flat />
+                  </div>
+                </q-date>
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </q-input>
+        <q-input class="col-12 col-md-6"
         :error-message="errors.PESEL"
         :error="!!errors.PESEL"
         bottom-slots
@@ -92,7 +109,8 @@ export default {
         passwordConfirmation: '',
         telephoneNumber: '',
         sex: false,
-        PESEL: ''
+        PESEL: '',
+        birthDt: '01.01.2000'
       },
       showPassword: false,
       errors: {
@@ -104,7 +122,8 @@ export default {
         passwordConfirmation: null,
         telephoneNumber: null,
         sex: null,
-        PESEL: null
+        PESEL: null,
+        birthDt: null
       }
     }
   },
