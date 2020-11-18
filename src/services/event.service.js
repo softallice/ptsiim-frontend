@@ -1,21 +1,36 @@
 import { request, requestWithToken } from './shared'
 
+import { date } from 'quasar'
+
 export async function createEvent (visitData, token) {
   return request('POST', '/event', {
     data: visitData
   })
 }
 
-export async function getUserEvents (userId) {
-  return request('GET', `/user/${userId}/events`)
+export async function getUserEvents (userId, token) {
+  return new Promise((resolve, reject) => {
+    requestWithToken('GET', `/user/${userId}/events`, token)
+      .then(res => {
+        const events = res.data.map((event) => {
+          const d = new Date(event.startDate)
+          const dateString = date.formatDate(d, 'YYYY-MM-DD')
+          const time = date.formatDate(d, 'HH:mm')
+          return { date: dateString, time, ...event }
+        })
+        resolve(events)
+      })
+  })
 }
 
 export function getEvent (eventId) {
   return new Promise((resolve, reject) => {
     request('GET', `/event/${eventId}`)
       .then(res => {
-        const event = res.data
-        resolve(event)
+        const d = new Date(res.data.startDate)
+        const dateString = date.formatDate(d, 'YYYY-MM-DD')
+        const time = date.formatDate(d, 'HH:mm')
+        resolve({ date: dateString, time, ...res.data })
       })
   })
 }

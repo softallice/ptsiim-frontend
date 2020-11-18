@@ -1,6 +1,6 @@
 <template>
 <div>
-    <q-card v-for="event in events" :key="event._id">
+    <q-card class="q-mb-md" v-for="event in events" :key="event._id">
       <q-card-section>
         <div class="text-h5">{{ event.title }}</div>
       </q-card-section>

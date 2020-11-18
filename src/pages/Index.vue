@@ -3,7 +3,7 @@
     <template v-if="isLoggedIn">
       <template v-if="userType == 'doctor'">
         <h4>Kalendarz wizyt</h4>
-        <calendar-view/>
+        <calendar-view :events="this.$store.state.events.events" :linkToVisit="true"/>
       </template>
       <div class="row q-col-gutter-md">
         <div class="col-12 col-md-6">

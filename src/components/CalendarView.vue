@@ -21,13 +21,15 @@
         <template #day-body="{ timestamp, timeStartPos, timeDurationHeight }">
           <template v-for="(event, index) in getEvents(timestamp.date)">
             <q-badge
+              @click="goToVisit(event)"
               v-if="event.time"
               :color="event.color ? event.color : 'primary'"
               :key="index"
               class="my-event justify-center ellipsis"
+              :class="{ 'cursor-pointer': linkToVisit }"
               :style="{ 'top': timeStartPos(event.time) + 'px', 'height': timeDurationHeight(event.duration) + 'px' }"
             >
-              <q-icon v-if="event.icon" :name="event.icon" class="q-mr-xs"></q-icon><span class="ellipsis">{{ event.title }}</span>
+              <q-icon v-if="event.icon" :name="event.icon" class="q-mr-xs"></q-icon><span class="ellipsis">{{ event.title || 'Termin zajęty' }}</span>
             </q-badge>
           </template>
         </template>
@@ -42,6 +44,10 @@ export default {
     events: {
       type: Array,
       default: () => ([])
+    },
+    linkToVisit: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -101,6 +107,11 @@ export default {
         }
       }
       return events
+    },
+    goToVisit (event) {
+      if (this.linkToVisit) {
+        this.$router.push(`/visit/${event._id}`)
+      }
     }
   }
 }

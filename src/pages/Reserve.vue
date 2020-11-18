@@ -278,6 +278,11 @@ export default {
           }
         })
       })
+      eventService.getUserEvents(this.event.doctor.id, this.$store.getters['user/accessToken']).then(events => {
+        this.events = events.map(event => {
+          return { ...event, color: 'grey-9' }
+        })
+      })
     }
   }
 }
