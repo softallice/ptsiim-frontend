@@ -3,6 +3,12 @@ import { request, requestWithToken } from './shared'
 import { date } from 'quasar'
 
 export async function createEvent (visitData, token) {
+  const dt = new Date(visitData.date)
+  dt.setHours(visitData.time.split(':')[0])
+  dt.setMinutes(visitData.time.split(':')[1])
+  visitData.startDate = dt
+  delete visitData.date
+  delete visitData.time
   return request('POST', '/event', {
     data: visitData
   })
