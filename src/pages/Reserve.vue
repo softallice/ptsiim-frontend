@@ -241,7 +241,11 @@ export default {
         date: this.event.date,
         time: this.event.time,
         isMedical: true,
-        duration: this.event.duration
+        duration: this.event.duration,
+        service: {
+          name: this.event.service.label,
+          price: this.event.service.price
+        }
       })
         .then(res => {
           console.log(res)
