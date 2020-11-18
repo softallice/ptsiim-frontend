@@ -29,7 +29,7 @@ export default {
   },
   filters: {
     dateFilter (value) {
-      return formatDate(value, 'YYYY-MM-DD, HH:mm')
+      return formatDate(value, 'DD.MM.YYYY, HH:mm')
     }
   }
 }

@@ -1,6 +1,12 @@
 <template>
   <q-page class="q-page--contained text-body1" padding>
-    <div class="q-gutter-md">
+    <q-inner-loading :showing="loading">
+      <q-spinner
+        color="primary"
+        size="3em"
+      />
+    </q-inner-loading>
+    <div v-if="!loading" class="q-gutter-md">
       <q-card class="col-12">
         <q-card-section>
           <div class="text-h6">Pacjent</div>
@@ -8,7 +14,7 @@
         <q-card-section>
           <span class="text-bold">Imię:</span> {{ visit.creator.firstName }}<br>
           <span class="text-bold">Nazwisko:</span> {{ visit.creator.lastName }}<br>
-          <span class="text-bold">Data urodzenia:</span> {{ visit.creator.birthDt }}
+          <span class="text-bold">Data urodzenia:</span> {{ visit.creator.birthDt | date }}
         </q-card-section>
       </q-card>
       <q-card class="col-12">
@@ -29,8 +35,8 @@
           </div>
         </q-card-section>
         <q-card-section>
-          <span class="text-bold">Zabieg:</span><br>
-          <span class="text-bold">Data:</span> {{ visit.startDate }}
+          <span class="text-bold">Zabieg:</span> {{ visit.service.name }} ({{ visit.service.price }} zł)<br>
+          <span class="text-bold">Data:</span> {{ visit.startDate | dateTime }}
         </q-card-section>
       </q-card>
       <q-card class="col-12">
@@ -45,12 +51,12 @@
           </div>
         </q-card-section>
       </q-card>
-      <q-card v-if="false" class="col-12">
+      <q-card class="col-12">
         <q-card-section>
           <div class="text-h6">Zdjęcia</div>
         </q-card-section>
         <q-card-section>
-          <div class="row items-center q-mb-md">
+          <div v-if="userType === 'patient'" class="row items-center q-mb-md">
             <q-btn color="primary" label="Zrób zdjęcie" icon="photo" @click="showMediaCapture = true"/>
           </div>
           <div v-if="visit.media.length > 0" class="row q-gutter-sm">
@@ -112,6 +118,9 @@ import CalendarView from 'components/CalendarView'
 import QCalendar from '@quasar/quasar-ui-qcalendar'
 import eventService from 'src/services/event.service'
 import chatService from 'src/services/chat.service'
+import { date, format } from 'quasar'
+
+const { formatDate } = date
 
 export default {
   // name: 'PageName',
@@ -143,15 +152,19 @@ export default {
       showMediaCapture: false,
       modified: false,
       changeDateDialog: false,
-      events: [
-      ]
+      events: [],
+      loading: true
     }
   },
   mounted () {
     this.$store.commit('setPageTitle', 'Szczegóły wizyty')
     eventService.getEvent(this.$route.params.id)
       .then(event => {
-        this.visit = event
+        this.visit = { ...event, media: [] }
+        this.$nextTick(() => {
+          this.modified = false
+        })
+        this.loading = false
       })
   },
   methods: {
@@ -236,6 +249,14 @@ export default {
     },
     'visit.time' () {
       this.modified = true
+    }
+  },
+  filters: {
+    date (value) {
+      return formatDate(value, 'DD.MM.YYYY')
+    },
+    dateTime (value) {
+      return formatDate(value, 'DD.MM.YYYY, HH:mm')
     }
   }
 }
