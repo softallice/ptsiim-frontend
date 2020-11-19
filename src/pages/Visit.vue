@@ -29,9 +29,9 @@
       <q-card class="col-12">
         <q-card-section>
           <div class="text-h6">Wizyta</div>
-          <div class="q-gutter-sm absolute" style="top: 16px; right: 8px">
+          <div v-if="editable" class="q-gutter-sm absolute" style="top: 16px; right: 8px">
             <q-btn color="primary" @click="changeDateDialog = true" flat label="Zmień termin"/>
-            <q-btn color="negative" flat label="Odwołaj"/>
+            <q-btn color="negative" label="Odwołaj"/>
           </div>
         </q-card-section>
         <q-card-section>
@@ -41,11 +41,11 @@
       </q-card>
       <q-card class="col-12">
         <q-card-section>
-          <div class="text-h6">Opis <q-btn v-if="userType === 'patient'" color="primary" class="absolute" style="top: 16px; right: 8px" flat label="Edytuj" @click="$refs.descriptionEdit.show()"/></div>
+          <div class="text-h6">Opis <q-btn v-if="userType === 'patient' && editable" color="primary" class="absolute" style="top: 16px; right: 8px" flat label="Edytuj" @click="$refs.descriptionEdit.show()"/></div>
         </q-card-section>
         <q-card-section>
           <div class="cursor-input">{{ visit.description }}
-            <q-popup-edit :disable="userType === 'doctor'" v-model="visit.description" ref="descriptionEdit" auto-save>
+            <q-popup-edit :disable="userType === 'doctor' || !editable" v-model="visit.description" ref="descriptionEdit" auto-save>
               <q-input type="textarea" v-model="visit.description"/>
             </q-popup-edit>
           </div>
@@ -56,7 +56,7 @@
           <div class="text-h6">Zdjęcia</div>
         </q-card-section>
         <q-card-section>
-          <div v-if="userType === 'patient'" class="row items-center q-mb-md">
+          <div v-if="userType === 'patient' && editable" class="row items-center q-mb-md">
             <q-btn color="primary" label="Zrób zdjęcie" icon="photo" @click="showMediaCapture = true"/>
           </div>
           <div v-if="visit.media.length > 0" class="row q-gutter-sm">
@@ -86,7 +86,7 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <calendar-view @click:time2="timeSelected" :events="[...events, visit]"/>
+          <calendar-view @click:time2="timeSelected" :events="[...events, visit]" :model-date="visit.date"/>
         </q-card-section>
 
         <q-card-actions align="right" class="bg-white">
@@ -105,7 +105,7 @@
       <q-toolbar class="bg-white text-black shadow-up-4">
         <q-btn color="primary" label="Otwórz czat" @click="openChat"/>
         <q-space/>
-        <q-btn color="primary" :label="saveButtonLabel" :disable="!modified" @click="modified = false"/>
+        <q-btn color="primary" :label="saveButtonLabel" :disable="!modified" @click="saveChanges"/>
       </q-toolbar>
     </q-page-sticky>
   </q-page>
@@ -223,6 +223,23 @@ export default {
               this.$router.push(`/chat/${_id}`)
             })
         })
+    },
+    saveChanges () {
+      eventService.patchEvent(this.visit._id, this.visit, this.$store.getters['user/accessToken'])
+        .then(() => {
+          this.$q.notify({
+            type: 'positive',
+            message: 'Zapisano zmiany'
+          })
+          this.modified = false
+        })
+        .catch(error => {
+          console.error(error)
+          this.$q.notify({
+            type: 'negative',
+            message: 'Błąd podczas zapisywania'
+          })
+        })
     }
   },
   computed: {
@@ -236,6 +253,9 @@ export default {
       } else {
         return 'Wszystkie zmiany zapisane'
       }
+    },
+    editable () {
+      return this.visit.startDate > new Date()
     }
   },
   watch: {
