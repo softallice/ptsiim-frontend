@@ -31,7 +31,7 @@
           <div class="text-h6">Wizyta</div>
           <div v-if="editable" class="q-gutter-sm absolute" style="top: 16px; right: 8px">
             <q-btn color="primary" @click="changeDateDialog = true" flat label="Zmień termin"/>
-            <q-btn color="negative" label="Odwołaj"/>
+            <q-btn color="negative" flat label="Odwołaj"/>
           </div>
         </q-card-section>
         <q-card-section>
@@ -59,14 +59,14 @@
           <div v-if="userType === 'patient' && editable" class="row items-center q-mb-md">
             <q-btn color="primary" label="Zrób zdjęcie" icon="photo" @click="showMediaCapture = true"/>
           </div>
-          <div v-if="visit.media.length > 0" class="row q-gutter-sm">
+          <div v-if="media.length > 0" class="row q-gutter-sm">
             <q-intersection
-              v-for="(pic, index) in visit.media"
+              v-for="(pic, index) in media"
               :key="index"
               transition="scale"
             >
-              <q-img :src="pic.dataURL" class="picture-item">
-                <q-icon class="absolute cursor-pointer" size="32px" name="close" color="white" style="top: 8px; right: 8px" @click="deletePicture(pic)"/>
+              <q-img @click="showImgPreview = true; previewId = pic._id" :src="`http://localhost:3000/api/media/${pic._id}`" class="picture-item">
+                <q-icon v-if="userType === 'patient'" class="absolute cursor-pointer" size="32px" name="close" color="white" style="top: 8px; right: 8px" @click="deletePicture(pic)"/>
               </q-img>
             </q-intersection>
           </div>
@@ -91,6 +91,14 @@
 
         <q-card-actions align="right" class="bg-white">
           <q-btn flat color="primary" label="OK" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    <q-dialog v-model="showImgPreview">
+      <q-card style="width: 90vw">
+        <q-img :src="`http://localhost:3000/api/media/${previewId}`" />
+        <q-card-actions>
+          <q-btn flat color="primary" label="Zamknij" @click="showImgPreview = false"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -119,6 +127,7 @@ import QCalendar from '@quasar/quasar-ui-qcalendar'
 import eventService from 'src/services/event.service'
 import chatService from 'src/services/chat.service'
 import { date, format } from 'quasar'
+import mediaService from 'src/services/media.service'
 
 const { formatDate } = date
 
@@ -153,7 +162,10 @@ export default {
       modified: false,
       changeDateDialog: false,
       events: [],
-      loading: true
+      loading: true,
+      media: [],
+      showImgPreview: false,
+      previewId: null
     }
   },
   mounted () {
@@ -167,18 +179,41 @@ export default {
         this.visit.color = 'green-9'
         this.loading = false
       })
+    this.loadMedia()
   },
   methods: {
     mediaCaptureClosed () {
       this.showMediaCapture = false
     },
+    loadMedia () {
+      mediaService.getEventMedia(this.$route.params.id)
+        .then(media => {
+          console.log(media)
+          this.media = media
+        })
+    },
     newMedia (data) {
-      this.visit.media.push(data)
+      mediaService.uploadMedia(this.$route.params.id, data.blob)
+        .then(() => {
+          this.loadMedia()
+          this.$q.notify({
+            type: 'positive',
+            message: 'Poprawnie wysłano plik'
+          })
+        })
+        .catch(error => {
+          console.error(error)
+          this.$q.notify({
+            type: 'negative',
+            message: 'Błąd podczas wysyłania zdjęcia'
+          })
+        })
     },
     deletePicture (pic) {
-      this.visit.media = this.visit.media.filter((p) => {
+      this.media = this.media.filter((p) => {
         return p !== pic
       })
+      mediaService.deleteMedia(pic._id)
     },
     timeSelected (event) {
       const date = event.scope.timestamp.date
