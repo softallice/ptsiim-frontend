@@ -9,7 +9,7 @@
     <q-calendar
       interval-start="9"
       interval-count="8"
-      v-model="date"
+      v-model="modelDate"
       :interval-height="intervalHeight+ 'px'"
       :view="view"
       :weekdays="weekdays"
@@ -53,6 +53,10 @@ export default {
     removables: {
       type: Boolean,
       default: false
+    },
+    modelDate: {
+      type: String,
+      default: ''
     }
   },
   data () {
