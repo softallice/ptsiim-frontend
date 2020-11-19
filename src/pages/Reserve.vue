@@ -114,6 +114,7 @@ import MediaCapture from 'components/MediaCapture'
 import eventService from 'src/services/event.service'
 import userService from 'src/services/user.service'
 import offerService from 'src/services/offer.service'
+import mediaService from 'src/services/media.service'
 
 export default {
   // name: 'PageName',
@@ -253,7 +254,28 @@ export default {
             type: 'positive',
             message: 'Poprawnie zarezerwowano wizytę'
           })
-          this.$router.push('/')
+          return res.data._id
+        })
+        .then(eventId => {
+          const uploads = this.event.media.map((media) => {
+            console.log(media)
+            return mediaService.uploadMedia(eventId, media.blob)
+          })
+          Promise.all(uploads).then(() => {
+            this.$q.notify({
+              type: 'positive',
+              message: 'Zarezerwowano termin'
+            })
+            this.$router.push('/')
+          })
+            .catch(error => {
+              console.log(error)
+              this.$q.notify({
+                type: 'warning',
+                message: 'Zarezerwowano wizytę, ale wystąpił błąd podczas wysyłania zdjęć'
+              })
+              this.$router.push('/')
+            })
         })
         .catch(error => {
           console.error(error)
