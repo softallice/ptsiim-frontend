@@ -13,30 +13,18 @@
         <div class="col-12 col-md-6">
           <h4>Ostatnie wiadomości</h4>
           <q-list bordered separator>
-            <q-item clickable to="/chat/1">
+            <q-item v-for="room in rooms" :key="room._id" clickable :to="`/chat/${room._id}`">
               <q-item-section>
                 <q-item-label>
-                  Adam Bengalski
+                  {{ room.user1._id === userId ? `${room.user2.firstName} ${room.user2.lastName}` : `${room.user1.firstName} ${room.user1.lastName}` }}
                 </q-item-label>
                 <q-item-label caption>
-                  Treść ostatniej wiadomości
+                  {{ room.lastMessage.senderId._id === userId ? 'Ty: ' : `${room.lastMessage.senderId.firstName} ${room.lastMessage.senderId.lastName}: `}}
+                  {{ room.lastMessage.content }}
                 </q-item-label>
               </q-item-section>
               <q-item-section side top>
-                <q-item-label>dzisiaj, 11:35</q-item-label>
-              </q-item-section>
-            </q-item>
-            <q-item clickable to="/chat/1">
-              <q-item-section>
-                <q-item-label>
-                  Jan Kowalski
-                </q-item-label>
-                <q-item-label caption>
-                  Treść ostatniej wiadomości
-                </q-item-label>
-              </q-item-section>
-              <q-item-section side top>
-                <q-item-label>wczoraj, 15:35</q-item-label>
+                <q-item-label>{{ room.lastMessage.createDt | dateTime }}</q-item-label>
               </q-item-section>
             </q-item>
           </q-list>
@@ -73,6 +61,8 @@ import { mapGetters } from 'vuex'
 import EventList from 'components/EventList'
 import CalendarView from 'src/components/CalendarView.vue'
 import eventService from 'src/services/event.service'
+import chatService from 'src/services/chat.service'
+import { date } from 'quasar'
 
 export default {
   name: 'PageIndex',
@@ -80,10 +70,19 @@ export default {
     EventList,
     CalendarView
   },
+  data () {
+    return {
+      rooms: []
+    }
+  },
   methods: {
     deleteEvent (event) {
       eventService.removeEvent(event._id, this.$store.getters['user/accessToken'])
         .then(this.$store.dispatch('events/getMyEvents'))
+    },
+    loadRooms () {
+      chatService.getLastMessages(this.userId)
+        .then(rooms => { this.rooms = rooms })
     }
   },
   mounted () {
@@ -92,12 +91,19 @@ export default {
       .then(() => {
         this.$store.dispatch('events/getMyEvents')
       })
+      .then(this.loadRooms)
   },
   computed: {
     ...mapGetters({
       isLoggedIn: 'user/isLoggedIn',
-      userType: 'user/userType'
+      userType: 'user/userType',
+      userId: 'user/id'
     })
+  },
+  filters: {
+    dateTime (dt) {
+      return date.formatDate(dt, 'DD.MM.YYYY, HH:mm')
+    }
   }
 }
 </script>
