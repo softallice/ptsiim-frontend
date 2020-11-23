@@ -1,6 +1,24 @@
 <template>
   <q-page :class="{'q-page--contained': !isLoggedIn }" padding>
     <template v-if="isLoggedIn">
+      <template v-if="nextVisit">
+        <h4>Nadchodząca wizyta</h4>
+          <q-card class="q-mb-md">
+            <q-card-section>
+              <div class="text-h5">{{ nextVisit.title }}</div>
+            </q-card-section>
+            <q-card-section>
+              <div class="text-h6 q-mt-none q-mb-xs">Doktor: {{ nextVisit.doctor.firstName }} {{ nextVisit.doctor.lastName }}</div>
+              <div class="text-h6 q-mt-none q-mb-xs">Pacjent: {{ nextVisit.creator.firstName }} {{ nextVisit.creator.lastName }}</div>
+              <div class="text-caption text-gray">{{ nextVisit.description }}</div>
+            </q-card-section>
+            <q-card-actions align="left">
+              <q-btn flat icon="event"/>
+              <q-btn flat>{{ nextVisit.startDate | dateTime }}</q-btn>
+              <q-btn color="primary" :to="`/visit/${nextVisit._id}`" flat>Szczegóły</q-btn>
+            </q-card-actions>
+          </q-card>
+      </template>
       <template v-if="userType == 'doctor'">
         <h4>Kalendarz wizyt</h4>
         <calendar-view @delete="deleteEvent" :removables="true" :events="this.$store.state.events.events" :linkToVisit="true"/>
@@ -98,7 +116,17 @@ export default {
       isLoggedIn: 'user/isLoggedIn',
       userType: 'user/userType',
       userId: 'user/id'
-    })
+    }),
+    nextVisit () {
+      const visits = this.$store.state.events.events
+      if (visits.length > 0) {
+        const topVisit = visits[0]
+        if (new Date(topVisit.startDate) > new Date()) {
+          return topVisit
+        }
+      }
+      return null
+    }
   },
   filters: {
     dateTime (dt) {

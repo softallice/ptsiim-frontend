@@ -5,7 +5,8 @@
         <div class="text-h5">{{ event.title }}</div>
       </q-card-section>
       <q-card-section>
-        <div class="text-h6 q-mt-none q-mb-xs">{{ event.doctorName }}</div>
+        <div class="text-h6 q-mt-none q-mb-xs">Doktor: {{ event.doctor.firstName }} {{ event.doctor.lastName }}</div>
+        <div class="text-h6 q-mt-none q-mb-xs">Pacjent: {{ event.creator.firstName }} {{ event.creator.lastName }}</div>
         <div class="text-caption text-gray">{{ event.description }}</div>
       </q-card-section>
       <q-card-actions align="right">

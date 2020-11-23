@@ -10,6 +10,9 @@
       <q-card class="col-12">
         <q-card-section>
           <div class="text-h6">Pacjent</div>
+          <div class="q-gutter-sm absolute" style="top: 16px; right: 8px">
+            <q-btn v-if="userType === 'doctor'" color="primary" :to="`/visits/${visit.creator._id}`" flat label="Zobacz historię leczenia"/>
+          </div>
         </q-card-section>
         <q-card-section>
           <span class="text-bold">Imię:</span> {{ visit.creator.firstName }}<br>

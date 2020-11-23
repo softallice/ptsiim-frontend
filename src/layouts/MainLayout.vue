@@ -85,6 +85,14 @@
             <q-item-label>Zarezerwuj wizytę</q-item-label>
           </q-item-section>
         </q-item>
+        <q-item clickable v-if="userType === 'patient'" exact :to="`/visits/${id}`">
+          <q-item-section avatar>
+            <q-icon name="note"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Historia wizyt</q-item-label>
+          </q-item-section>
+        </q-item>
         <q-item clickable v-if="userType === 'doctor'" exact to="/offer">
           <q-item-section avatar>
             <q-icon name="edit"/>
@@ -183,7 +191,8 @@ export default {
       headerIcon: 'headerIcon',
       isLoggedIn: 'user/isLoggedIn',
       email: 'user/email',
-      userType: 'user/userType'
+      userType: 'user/userType',
+      id: 'user/id'
     }),
     accountString () {
       if (this.isLoggedIn) {

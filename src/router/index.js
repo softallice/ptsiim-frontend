@@ -1,5 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import jwt from 'jsonwebtoken'
+import { LocalStorage, Notify } from 'quasar'
 
 import routes from './routes'
 
@@ -24,6 +26,41 @@ export default function (/* { store, ssrContext } */) {
     // quasar.conf.js -> build -> publicPath
     mode: process.env.VUE_ROUTER_MODE,
     base: process.env.VUE_ROUTER_BASE
+  })
+
+  Router.beforeEach((to, from, next) => {
+    if (to.matched.some(record => record.meta.requiresAuth)) {
+      if (!LocalStorage.has('accessToken')) {
+        return next({
+          path: '/login'
+        })
+      }
+    } else if (to.matched.some(record => record.meta.requiresPatient)) {
+      if (!LocalStorage.has('accessToken')) {
+        return next({ path: '/login' })
+      }
+      const data = jwt.decode(LocalStorage.getItem('accessToken'))
+      if (data.isDoctor) {
+        Notify.create({
+          type: 'warning',
+          message: 'Musisz być pacjentem'
+        })
+        return next({ path: '/' })
+      }
+    } else if (to.matched.some(record => record.meta.requiresDoctor)) {
+      if (!LocalStorage.has('accessToken')) {
+        return next({ path: '/login' })
+      }
+      const data = jwt.decode(LocalStorage.getItem('accessToken'))
+      if (!data.isDoctor) {
+        Notify.create({
+          type: 'warning',
+          message: 'Musisz być lekarzem'
+        })
+        return next({ path: '/' })
+      }
+    }
+    next()
   })
 
   return Router

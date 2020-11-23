@@ -30,7 +30,7 @@ export default {
     }
   },
   mounted () {
-    this.$store.commit('setPageTitle', 'Czat z użytkownikiem Jan Kowalski')
+    this.$store.commit('setPageTitle', 'Czat')
     this.$store.commit('setHeaderIcon', 'back')
     this.$store.dispatch('user/getUserData')
       .then(() => {

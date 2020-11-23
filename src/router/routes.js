@@ -7,11 +7,12 @@ const routes = [
       { path: '', component: () => import('pages/Index.vue') },
       { path: 'login', component: () => import('pages/Login.vue') },
       { path: 'register', component: () => import('pages/Register.vue') },
-      { path: 'reserve', component: () => import('pages/Reserve.vue') },
-      { path: 'visit/:id', component: () => import('pages/Visit.vue') },
-      { path: 'offer', component: () => import('pages/OfferEdit.vue') },
-      { path: 'chat/:id', component: () => import('pages/Chat.vue') },
-      { path: 'busy-time', component: () => import('pages/BusyTime.vue') }
+      { path: 'reserve', component: () => import('pages/Reserve.vue'), meta: { requiresPatient: true } },
+      { path: 'visit/:id', component: () => import('pages/Visit.vue'), meta: { requiresAuth: true } },
+      { path: 'offer', component: () => import('pages/OfferEdit.vue'), meta: { requiresDoctor: true } },
+      { path: 'chat/:id', component: () => import('pages/Chat.vue'), meta: { requiresAuth: true } },
+      { path: 'busy-time', component: () => import('pages/BusyTime.vue'), meta: { requiresDoctor: true } },
+      { path: 'visits/:userId', component: () => import('pages/Visits.vue'), meta: { requiresAuth: true } }
     ]
   },
 
