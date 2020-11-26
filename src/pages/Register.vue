@@ -136,6 +136,7 @@ export default {
             type: 'positive',
             message: 'Zarejestrowano pomyślnie!'
           })
+          this.$router.push('/')
         })
         .catch(error => {
           console.error(error)

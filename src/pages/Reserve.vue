@@ -250,10 +250,10 @@ export default {
       })
         .then(res => {
           console.log(res)
-          this.$q.notify({
-            type: 'positive',
-            message: 'Poprawnie zarezerwowano wizytę'
-          })
+          // this.$q.notify({
+          //   type: 'positive',
+          //   message: 'Poprawnie zarezerwowano wizytę'
+          // })
           return res.data._id
         })
         .then(eventId => {

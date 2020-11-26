@@ -118,12 +118,11 @@ export default {
       userId: 'user/id'
     }),
     nextVisit () {
-      const visits = this.$store.state.events.events
+      const visits = this.$store.state.events.events.filter(event => {
+        return event.isMedical && new Date(event.startDate) > new Date()
+      })
       if (visits.length > 0) {
-        const topVisit = visits[0]
-        if (new Date(topVisit.startDate) > new Date()) {
-          return topVisit
-        }
+        return visits[visits.length - 1]
       }
       return null
     }
