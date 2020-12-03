@@ -7,6 +7,8 @@
 // https://quasar.dev/quasar-cli/quasar-conf-js
 /* eslint-env node */
 
+const path = require('path')
+
 module.exports = function (/* ctx */) {
   return {
     // https://quasar.dev/quasar-cli/supporting-ts
@@ -20,7 +22,8 @@ module.exports = function (/* ctx */) {
     // https://quasar.dev/quasar-cli/boot-files
     boot: [
 
-      'axios'
+      'axios',
+      'user'
     ],
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
@@ -64,6 +67,10 @@ module.exports = function (/* ctx */) {
 
       // https://quasar.dev/quasar-cli/handling-webpack
       extendWebpack (cfg) {
+        cfg.resolve.alias = {
+          ...cfg.resolve.alias,
+          services: path.resolve(__dirname, './src/services')
+        }
         cfg.module.rules.push({
           enforce: 'pre',
           test: /\.(js|vue)$/,
@@ -78,7 +85,13 @@ module.exports = function (/* ctx */) {
       https: false,
       port: 8000,
       open: false, // opens browser window automatically,
-      host: '0.0.0.0'
+      host: '0.0.0.0',
+      proxy: {
+        '/socket.io': {
+          target: 'ws://localhost:3000',
+          ws: true
+        }
+      }
     },
 
     // https://quasar.dev/quasar-cli/quasar-conf-js#Property%3A-framework
@@ -101,7 +114,8 @@ module.exports = function (/* ctx */) {
 
       // Quasar plugins
       plugins: [
-        'Notify'
+        'Notify',
+        'LocalStorage'
       ]
     },
 

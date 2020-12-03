@@ -9,7 +9,7 @@
     <q-calendar
       interval-start="9"
       interval-count="8"
-      v-model="date"
+      v-model="modelDate"
       :interval-height="intervalHeight+ 'px'"
       :view="view"
       :weekdays="weekdays"
@@ -21,13 +21,16 @@
         <template #day-body="{ timestamp, timeStartPos, timeDurationHeight }">
           <template v-for="(event, index) in getEvents(timestamp.date)">
             <q-badge
+              @click.self="goToVisit(event)"
               v-if="event.time"
               :color="event.color ? event.color : 'primary'"
               :key="index"
               class="my-event justify-center ellipsis"
+              :class="{ 'cursor-pointer': linkToVisit }"
               :style="{ 'top': timeStartPos(event.time) + 'px', 'height': timeDurationHeight(event.duration) + 'px' }"
             >
-              <q-icon v-if="event.icon" :name="event.icon" class="q-mr-xs"></q-icon><span class="ellipsis">{{ event.title }}</span>
+              <q-icon v-if="event.icon" :name="event.icon" class="q-mr-xs"></q-icon><span class="ellipsis">{{ event.title || 'Termin zajęty' }}</span>
+              <q-icon v-if="!event.isMedical && removables" @click.capture="$emit('delete', event)" size="md" name="close" color="white" flat style="position: absolute; right: 4px; top: 4px;"/>
             </q-badge>
           </template>
         </template>
@@ -42,6 +45,18 @@ export default {
     events: {
       type: Array,
       default: () => ([])
+    },
+    linkToVisit: {
+      type: Boolean,
+      default: false
+    },
+    removables: {
+      type: Boolean,
+      default: false
+    },
+    modelDate: {
+      type: String,
+      default: ''
     }
   },
   data () {
@@ -101,6 +116,11 @@ export default {
         }
       }
       return events
+    },
+    goToVisit (event) {
+      if (this.linkToVisit) {
+        this.$router.push(`/visit/${event._id}`)
+      }
     }
   }
 }

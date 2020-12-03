@@ -35,24 +35,36 @@
     >
       <q-list>
         <q-item-label header class="text-grey-8">
-          Konto
+          {{ accountString }}
         </q-item-label>
-        <q-item clickable to="/login">
-          <q-item-section avatar>
-            <q-icon name="login"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Zaloguj się</q-item-label>
-          </q-item-section>
-        </q-item>
-        <q-item clickable to="/register">
-          <q-item-section avatar>
-            <q-icon name="person_add"/>
-          </q-item-section>
-          <q-item-section>
-            <q-item-label>Zarejestruj się</q-item-label>
-          </q-item-section>
-        </q-item>
+        <template v-if="!isLoggedIn">
+          <q-item clickable to="/login">
+            <q-item-section avatar>
+              <q-icon name="login"/>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Zaloguj się</q-item-label>
+            </q-item-section>
+          </q-item>
+          <q-item clickable to="/register">
+            <q-item-section avatar>
+              <q-icon name="person_add"/>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Zarejestruj się</q-item-label>
+            </q-item-section>
+          </q-item>
+        </template>
+        <template v-else>
+          <q-item @click="$store.dispatch('user/logout')" clickable>
+            <q-item-section avatar>
+              <q-icon name="logout"/>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label>Wyloguj się</q-item-label>
+            </q-item-section>
+          </q-item>
+        </template>
         <q-separator/>
         <q-item-label header class="text-grey-8">
           Nawigacja
@@ -63,6 +75,38 @@
           </q-item-section>
           <q-item-section>
             <q-item-label>Strona główna</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-if="userType === 'patient'" exact to="/reserve">
+          <q-item-section avatar>
+            <q-icon name="note_add"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Zarezerwuj wizytę</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-if="userType === 'patient'" exact :to="`/visits/${id}`">
+          <q-item-section avatar>
+            <q-icon name="note"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Historia wizyt</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-if="userType === 'doctor'" exact to="/offer">
+          <q-item-section avatar>
+            <q-icon name="edit"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Edytuj ofertę</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item clickable v-if="userType === 'doctor'" exact to="/busy-time">
+          <q-item-section avatar>
+            <q-icon name="alarm_off"/>
+          </q-item-section>
+          <q-item-section>
+            <q-item-label>Czas zajętości</q-item-label>
           </q-item-section>
         </q-item>
         <!-- <EssentialLink
@@ -144,8 +188,19 @@ export default {
   computed: {
     ...mapGetters({
       pageTitle: 'pageTitle',
-      headerIcon: 'headerIcon'
-    })
+      headerIcon: 'headerIcon',
+      isLoggedIn: 'user/isLoggedIn',
+      email: 'user/email',
+      userType: 'user/userType',
+      id: 'user/id'
+    }),
+    accountString () {
+      if (this.isLoggedIn) {
+        return this.email
+      } else {
+        return 'Konto'
+      }
+    }
   },
   methods: {
     toggleLeftDrawer () {

@@ -1,14 +1,23 @@
 <template>
   <q-page class="q-page--contained text-body1" padding>
-    <div class="q-gutter-md">
+    <q-inner-loading :showing="loading">
+      <q-spinner
+        color="primary"
+        size="3em"
+      />
+    </q-inner-loading>
+    <div v-if="!loading" class="q-gutter-md">
       <q-card class="col-12">
         <q-card-section>
           <div class="text-h6">Pacjent</div>
+          <div class="q-gutter-sm absolute" style="top: 16px; right: 8px">
+            <q-btn v-if="userType === 'doctor'" color="primary" :to="`/visits/${visit.creator._id}`" flat label="Zobacz historię leczenia"/>
+          </div>
         </q-card-section>
         <q-card-section>
-          <span class="text-bold">Imię:</span> {{ visit.patient.firstName }}<br>
-          <span class="text-bold">Nazwisko:</span> {{ visit.patient.lastName }}<br>
-          <span class="text-bold">Data urodzenia:</span> {{ visit.patient.birthDt }}
+          <span class="text-bold">Imię:</span> {{ visit.creator.firstName }}<br>
+          <span class="text-bold">Nazwisko:</span> {{ visit.creator.lastName }}<br>
+          <span class="text-bold">Data urodzenia:</span> {{ visit.creator.birthDt | date }}
         </q-card-section>
       </q-card>
       <q-card class="col-12">
@@ -23,23 +32,23 @@
       <q-card class="col-12">
         <q-card-section>
           <div class="text-h6">Wizyta</div>
-          <div class="q-gutter-sm absolute" style="top: 16px; right: 8px">
+          <div v-if="editable" class="q-gutter-sm absolute" style="top: 16px; right: 8px">
             <q-btn color="primary" @click="changeDateDialog = true" flat label="Zmień termin"/>
             <q-btn color="negative" flat label="Odwołaj"/>
           </div>
         </q-card-section>
         <q-card-section>
-          <span class="text-bold">Zabieg:</span> {{ visit.type.name }}<br>
-          <span class="text-bold">Data:</span> {{ visit.date }} {{ visit.time }}
+          <span class="text-bold">Zabieg:</span> {{ visit.service.name }} ({{ visit.service.price }} zł)<br>
+          <span class="text-bold">Data:</span> {{ visit.startDate | dateTime }}
         </q-card-section>
       </q-card>
       <q-card class="col-12">
         <q-card-section>
-          <div class="text-h6">Opis <q-btn color="primary" class="absolute" style="top: 16px; right: 8px" flat label="Edytuj" @click="$refs.descriptionEdit.show()"/></div>
+          <div class="text-h6">Opis <q-btn v-if="userType === 'patient' && editable" color="primary" class="absolute" style="top: 16px; right: 8px" flat label="Edytuj" @click="$refs.descriptionEdit.show()"/></div>
         </q-card-section>
         <q-card-section>
           <div class="cursor-input">{{ visit.description }}
-            <q-popup-edit v-model="visit.description" ref="descriptionEdit" auto-save>
+            <q-popup-edit :disable="userType === 'doctor' || !editable" v-model="visit.description" ref="descriptionEdit" auto-save>
               <q-input type="textarea" v-model="visit.description"/>
             </q-popup-edit>
           </div>
@@ -50,17 +59,17 @@
           <div class="text-h6">Zdjęcia</div>
         </q-card-section>
         <q-card-section>
-          <div class="row items-center q-mb-md">
+          <div v-if="userType === 'patient' && editable" class="row items-center q-mb-md">
             <q-btn color="primary" label="Zrób zdjęcie" icon="photo" @click="showMediaCapture = true"/>
           </div>
-          <div v-if="visit.media.length > 0" class="row q-gutter-sm">
+          <div v-if="media.length > 0" class="row q-gutter-sm">
             <q-intersection
-              v-for="(pic, index) in visit.media"
+              v-for="(pic, index) in media"
               :key="index"
               transition="scale"
             >
-              <q-img :src="pic.dataURL" class="picture-item">
-                <q-icon class="absolute cursor-pointer" size="32px" name="close" color="white" style="top: 8px; right: 8px" @click="deletePicture(pic)"/>
+              <q-img @click="showImgPreview = true; previewId = pic._id" :src="`http://localhost:3000/api/media/${pic._id}`" class="picture-item">
+                <q-icon v-if="userType === 'patient'" class="absolute cursor-pointer" size="32px" name="close" color="white" style="top: 8px; right: 8px" @click="deletePicture(pic)"/>
               </q-img>
             </q-intersection>
           </div>
@@ -80,11 +89,19 @@
         </q-card-section>
 
         <q-card-section class="q-pt-none">
-          <calendar-view @click:time2="timeSelected" :events="[...events, visit]"/>
+          <calendar-view @click:time2="timeSelected" :events="[...events, visit]" :model-date="visit.date"/>
         </q-card-section>
 
         <q-card-actions align="right" class="bg-white">
           <q-btn flat color="primary" label="OK" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+    <q-dialog v-model="showImgPreview">
+      <q-card style="width: 90vw">
+        <q-img :src="`http://localhost:3000/api/media/${previewId}`" />
+        <q-card-actions>
+          <q-btn flat color="primary" label="Zamknij" @click="showImgPreview = false"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -97,8 +114,9 @@
     />
     <q-page-sticky expand position="bottom">
       <q-toolbar class="bg-white text-black shadow-up-4">
+        <q-btn color="primary" label="Otwórz czat" @click="openChat"/>
         <q-space/>
-        <q-btn color="primary" :label="saveButtonLabel" :disable="!modified" @click="modified = false"/>
+        <q-btn color="primary" :label="saveButtonLabel" :disable="!modified" @click="saveChanges"/>
       </q-toolbar>
     </q-page-sticky>
   </q-page>
@@ -109,6 +127,12 @@ import { mapGetters, mapMutations } from 'vuex'
 import MediaCapture from 'components/MediaCapture'
 import CalendarView from 'components/CalendarView'
 import QCalendar from '@quasar/quasar-ui-qcalendar'
+import eventService from 'src/services/event.service'
+import chatService from 'src/services/chat.service'
+import { date, format } from 'quasar'
+import mediaService from 'src/services/media.service'
+
+const { formatDate } = date
 
 export default {
   // name: 'PageName',
@@ -119,62 +143,80 @@ export default {
   data () {
     return {
       visit: {
-        title: 'Twoja wizyta',
-        patient: {
-          firstName: 'Stefan',
-          lastName: 'Przykładowy',
-          birthDt: '12.12.1994'
+        title: null,
+        creator: {
+          _id: null,
+          firstName: null,
+          lastName: null,
+          birthDt: null
         },
         doctor: {
-          firstName: 'Jan',
-          lastName: 'Kowalski'
+          _id: null,
+          firstName: null,
+          lastName: null
         },
-        type: {
-          name: 'Leczenie kanałowe'
-        },
-        date: '2020-11-10',
-        time: '16:00',
+        date: null,
+        time: null,
         duration: 59,
-        description: 'Stramsznie boli mnje zomb. Proszem coś z dym zropić',
+        description: null,
         media: []
       },
       showMediaCapture: false,
       modified: false,
       changeDateDialog: false,
-      events: [
-        {
-          title: 'Termin zajęty',
-          date: '2020-11-09',
-          time: '09:00',
-          duration: 119,
-          color: 'grey-9',
-          editable: false
-        },
-        {
-          title: 'Termin zajęty',
-          date: '2020-11-09',
-          time: '12:00',
-          duration: 59,
-          color: 'grey-9',
-          editable: false
-        }
-      ]
+      events: [],
+      loading: true,
+      media: [],
+      showImgPreview: false,
+      previewId: null
     }
   },
   mounted () {
     this.$store.commit('setPageTitle', 'Szczegóły wizyty')
+    eventService.getEvent(this.$route.params.id)
+      .then(event => {
+        this.visit = { ...event, media: [] }
+        this.$nextTick(() => {
+          this.modified = false
+        })
+        this.visit.color = 'green-9'
+        this.loading = false
+      })
+    this.loadMedia()
   },
   methods: {
     mediaCaptureClosed () {
       this.showMediaCapture = false
     },
+    loadMedia () {
+      mediaService.getEventMedia(this.$route.params.id)
+        .then(media => {
+          console.log(media)
+          this.media = media
+        })
+    },
     newMedia (data) {
-      this.visit.media.push(data)
+      mediaService.uploadMedia(this.$route.params.id, data.blob)
+        .then(() => {
+          this.loadMedia()
+          this.$q.notify({
+            type: 'positive',
+            message: 'Poprawnie wysłano plik'
+          })
+        })
+        .catch(error => {
+          console.error(error)
+          this.$q.notify({
+            type: 'negative',
+            message: 'Błąd podczas wysyłania zdjęcia'
+          })
+        })
     },
     deletePicture (pic) {
-      this.visit.media = this.visit.media.filter((p) => {
+      this.media = this.media.filter((p) => {
         return p !== pic
       })
+      mediaService.deleteMedia(pic._id)
     },
     timeSelected (event) {
       const date = event.scope.timestamp.date
@@ -204,6 +246,38 @@ export default {
           message: 'Termin jest zajęty'
         })
       }
+    },
+    openChat () {
+      chatService.getRoomByUsers(this.visit.creator._id, this.visit.doctor._id)
+        .then(res => {
+          const { _id } = res.data
+          this.$router.push(`/chat/${_id}`)
+        })
+        .catch(error => {
+          console.error(error)
+          chatService.createRoom(this.visit.creator._id, this.visit.doctor._id)
+            .then(res => {
+              const { _id } = res.data
+              this.$router.push(`/chat/${_id}`)
+            })
+        })
+    },
+    saveChanges () {
+      eventService.patchEvent(this.visit._id, this.visit, this.$store.getters['user/accessToken'])
+        .then(() => {
+          this.$q.notify({
+            type: 'positive',
+            message: 'Zapisano zmiany'
+          })
+          this.modified = false
+        })
+        .catch(error => {
+          console.error(error)
+          this.$q.notify({
+            type: 'negative',
+            message: 'Błąd podczas zapisywania'
+          })
+        })
     }
   },
   computed: {
@@ -217,6 +291,9 @@ export default {
       } else {
         return 'Wszystkie zmiany zapisane'
       }
+    },
+    editable () {
+      return this.visit.startDate > new Date()
     }
   },
   watch: {
@@ -228,9 +305,37 @@ export default {
     },
     'visit.date' () {
       this.modified = true
+      this.visit.startDate = new Date(this.visit.date)
+      this.visit.startDate.setHours(this.visit.time.split(':')[0])
+      this.visit.startDate.setMinutes(this.visit.time.split(':')[1])
     },
     'visit.time' () {
       this.modified = true
+      this.visit.startDate = new Date(this.visit.date)
+      this.visit.startDate.setHours(this.visit.time.split(':')[0])
+      this.visit.startDate.setMinutes(this.visit.time.split(':')[1])
+    },
+    'changeDateDialog' () {
+      eventService.getUserEvents(this.visit.doctor._id, this.$store.getters['user/accessToken'])
+        .then((events) => {
+          this.events = events.filter(event => {
+            return event._id !== this.visit._id
+          })
+          this.events = this.events.map((event) => {
+            if (event._id === this.visit._id) {
+              event.color = 'green-9'
+            }
+            return event
+          })
+        })
+    }
+  },
+  filters: {
+    date (value) {
+      return formatDate(value, 'DD.MM.YYYY')
+    },
+    dateTime (value) {
+      return formatDate(value, 'DD.MM.YYYY, HH:mm')
     }
   }
 }

@@ -2,9 +2,13 @@ export default function () {
   return {
     loggedIn: true,
     userData: {
-      type: 'patient',
+      id: null,
+      type: null,
       firstName: null,
-      lastName: null
-    }
+      lastName: null,
+      email: null
+    },
+    accessToken: null,
+    offer: []
   }
 }
